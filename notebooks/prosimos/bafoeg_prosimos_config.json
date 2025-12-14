@@ -1,0 +1,807 @@
+{
+  "resource_profiles": [
+    {
+      "id": "system_resource",
+      "name": "System(24/7)",
+      "resource_list": [
+        {
+          "id": "system_1",
+          "name": "System",
+          "cost_per_hour": 0,
+          "amount": 9999,
+          "calendar": "24_7",
+          "assignedTasks": []
+        }
+      ]
+    },
+
+    {
+      "id": "bafoeg_amt",
+      "name": "BAföGAmt(8:00-17:30)",
+      "resource_list": [
+        {
+          "id": "sachbearbeiter_1",
+          "name": "Sachbearbeiter1",
+          "cost_per_hour": 35,
+          "amount": 1,
+          "calendar": "bafoeg_office_hours",
+          "assignedTasks": []
+        },
+        {
+          "id": "sachbearbeiter_2",
+          "name": "Sachbearbeiter2",
+          "cost_per_hour": 35,
+          "amount": 1,
+          "calendar": "bafoeg_office_hours",
+          "assignedTasks": []
+        },
+        {
+          "id": "sachbearbeiter_3",
+          "name": "Sachbearbeiter3",
+          "cost_per_hour": 35,
+          "amount": 1,
+          "calendar": "bafoeg_office_hours",
+          "assignedTasks": []
+        }
+      ]
+    }
+  ],
+
+  "arrival_time_distribution": {
+    "distribution_name": "expon",
+    "distribution_params": [
+      {
+        "value": 240.0
+      },
+      {
+        "value": 0.0
+      },
+      {
+        "value": 480.0
+      }
+    ]
+  },
+  
+  "arrival_time_calendar": [
+    {
+      "from": "MONDAY",
+      "to": "FRIDAY",
+      "beginTime": "08:00:00.000",
+      "endTime": "16:00:00.000",
+      "distribution_name": "expon",
+      "distribution_params": [
+        {
+          "value": 120.0
+        }
+      ]
+    },
+    {
+      "from": "MONDAY",
+      "to": "FRIDAY",
+      "beginTime": "16:00:00.000",
+      "endTime": "21:00:00.000",
+      "distribution_name": "expon",
+      "distribution_params": [
+        {
+          "value": 30.0
+        }
+      ]
+    },
+    {
+      "from": "MONDAY",
+      "to": "FRIDAY",
+      "beginTime": "21:00:00.000",
+      "endTime": "23:59:59.999",
+      "distribution_name": "expon",
+      "distribution_params": [
+        {
+          "value": 180.0
+        }
+      ]
+    },
+    {
+      "from": "SATURDAY",
+      "to": "SUNDAY",
+      "beginTime": "00:00:00.000",
+      "endTime": "23:59:59.999",
+      "distribution_name": "expon",
+      "distribution_params": [
+        {
+          "value": 300.0
+        }
+      ]
+    }
+  ],
+
+  "gateway_branching_probabilities": [
+    {
+      "gateway_id": "Gateway_0j17y0t",
+      "probabilities": [
+        {
+          "path_id": "Flow_14pqy0c",
+          "value": 0.8
+        },
+        {
+          "path_id": "Flow_13hu7um",
+          "value": 0.2
+        }
+      ]
+    },
+    {
+      "gateway_id": "Gateway_0wbr4r3",
+      "probabilities": [
+        {
+          "path_id": "Flow_1td60er",
+          "value": 0.6
+        },
+        {
+          "path_id": "Flow_04ytrx5",
+          "value": 0.4
+        }
+      ]
+    },
+    {
+      "gateway_id": "Gateway_142a9j9",
+      "probabilities": [
+        {
+          "path_id": "Flow_0m942u5",
+          "value": 0.8
+        },
+        {
+          "path_id": "Flow_06dhjwd",
+          "value": 0.2
+        }
+      ]
+    }
+  ],
+  "task_resource_distribution": [
+    {
+      "task_id": "Activity_0vtb6uj",
+      "resources": [
+        {
+          "resource_id": "system_1",
+          "distribution_name": "uniform",
+          "distribution_params": [
+            {
+              "value": 1.0
+            },
+            {
+              "value": 3.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "Activity_1sghd3e",
+      "resources": [
+        {
+          "resource_id": "system_1",
+          "distribution_name": "uniform",
+          "distribution_params": [
+            {
+              "value": 2.0
+            },
+            {
+              "value": 5.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "Activity_1reuwa9",
+      "resources": [
+        {
+          "resource_id": "sachbearbeiter_1",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 120.0
+            },
+            {
+              "value": 30.0
+            },
+            {
+              "value": 60.0
+            },
+            {
+              "value": 240.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_2",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 120.0
+            },
+            {
+              "value": 30.0
+            },
+            {
+              "value": 60.0
+            },
+            {
+              "value": 240.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_3",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 120.0
+            },
+            {
+              "value": 30.0
+            },
+            {
+              "value": 60.0
+            },
+            {
+              "value": 240.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "Activity_02rdnqd",
+      "resources": [
+        {
+          "resource_id": "sachbearbeiter_1",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 600.0
+            },
+            {
+              "value": 120.0
+            },
+            {
+              "value": 300.0
+            },
+            {
+              "value": 900.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_2",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 600.0
+            },
+            {
+              "value": 120.0
+            },
+            {
+              "value": 300.0
+            },
+            {
+              "value": 900.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_3",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 600.0
+            },
+            {
+              "value": 120.0
+            },
+            {
+              "value": 300.0
+            },
+            {
+              "value": 900.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "Activity_1rula96",
+      "resources": [
+        {
+          "resource_id": "sachbearbeiter_1",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 300.0
+            },
+            {
+              "value": 120.0
+            },
+            {
+              "value": 240.0
+            },
+            {
+              "value": 480.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_2",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 300.0
+            },
+            {
+              "value": 120.0
+            },
+            {
+              "value": 240.0
+            },
+            {
+              "value": 480.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_3",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 300.0
+            },
+            {
+              "value": 120.0
+            },
+            {
+              "value": 240.0
+            },
+            {
+              "value": 480.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "Activity_0na27kh",
+      "resources": [
+        {
+          "resource_id": "system_1",
+          "distribution_name": "expon",
+          "distribution_params": [
+            {
+              "value": 345600.0
+            },
+            {
+              "value": 9000.0
+            },
+            {
+              "value": 2592000
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "Activity_0dbquyc",
+      "resources": [
+        {
+          "resource_id": "system_1",
+          "distribution_name": "uniform",
+          "distribution_params": [
+            {
+              "value": 2.0
+            },
+            {
+              "value": 5.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "Activity_031corn",
+      "resources": [
+        {
+          "resource_id": "system_1",
+          "distribution_name": "expon",
+          "distribution_params": [
+            {
+              "value": 345600.0
+            },
+            {
+              "value": 9000.0
+            },
+            {
+              "value": 2592000
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "Activity_1anmjnd",
+      "resources": [
+        {
+          "resource_id": "sachbearbeiter_1",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 600.0
+            },
+            {
+              "value": 300.0
+            },
+            {
+              "value": 300.0
+            },
+            {
+              "value": 1200.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_2",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 600.0
+            },
+            {
+              "value": 300.0
+            },
+            {
+              "value": 300.0
+            },
+            {
+              "value": 1200.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_3",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 600.0
+            },
+            {
+              "value": 300.0
+            },
+            {
+              "value": 300.0
+            },
+            {
+              "value": 1200.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "Activity_0ir0f2q",
+      "resources": [
+        {
+          "resource_id": "sachbearbeiter_1",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 900.0
+            },
+            {
+              "value": 180.0
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 1200.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_2",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 900.0
+            },
+            {
+              "value": 180.0
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 1200.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_3",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 900.0
+            },
+            {
+              "value": 180.0
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 1200.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "Activity_0pvdge2",
+      "resources": [
+        {
+          "resource_id": "sachbearbeiter_1",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 300.0
+            },
+            {
+              "value": 120.0
+            },
+            {
+              "value": 160.0
+            },
+            {
+              "value": 360.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_2",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 300.0
+            },
+            {
+              "value": 120.0
+            },
+            {
+              "value": 160.0
+            },
+            {
+              "value": 360.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_3",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 300.0
+            },
+            {
+              "value": 120.0
+            },
+            {
+              "value": 160.0
+            },
+            {
+              "value": 360.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "Activity_11ljlt8",
+      "resources": [
+        {
+          "resource_id": "sachbearbeiter_1",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 120.0
+            },
+            {
+              "value": 30.0
+            },
+            {
+              "value": 60.0
+            },
+            {
+              "value": 300.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_2",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 120.0
+            },
+            {
+              "value": 30.0
+            },
+            {
+              "value": 60.0
+            },
+            {
+              "value": 300.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_3",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 120.0
+            },
+            {
+              "value": 30.0
+            },
+            {
+              "value": 60.0
+            },
+            {
+              "value": 300.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "Activity_1lip6o3",
+      "resources": [
+        {
+          "resource_id": "sachbearbeiter_1",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 300.0
+            },
+            {
+              "value": 120.0
+            },
+            {
+              "value": 160.0
+            },
+            {
+              "value": 360.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_2",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 300.0
+            },
+            {
+              "value": 120.0
+            },
+            {
+              "value": 160.0
+            },
+            {
+              "value": 360.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_3",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 300.0
+            },
+            {
+              "value": 120.0
+            },
+            {
+              "value": 160.0
+            },
+            {
+              "value": 360.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "Activity_12go9h5",
+      "resources": [
+        {
+          "resource_id": "sachbearbeiter_1",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 120.0
+            },
+            {
+              "value": 30.0
+            },
+            {
+              "value": 60.0
+            },
+            {
+              "value": 300.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_2",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 120.0
+            },
+            {
+              "value": 30.0
+            },
+            {
+              "value": 60.0
+            },
+            {
+              "value": 300.0
+            }
+          ]
+        },
+        {
+          "resource_id": "sachbearbeiter_3",
+          "distribution_name": "norm",
+          "distribution_params": [
+            {
+              "value": 120.0
+            },
+            {
+              "value": 30.0
+            },
+            {
+              "value": 60.0
+            },
+            {
+              "value": 300.0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "resource_calendars": [
+    {
+      "id": "24_7",
+      "name": "24/7 System Calendar",
+      "time_periods": [
+        {
+          "from": "MONDAY",
+          "to": "SUNDAY",
+          "beginTime": "00:00:00.000",
+          "endTime": "23:59:59.999"
+        }
+      ]
+    },
+    {
+      "id": "bafoeg_office_hours",
+      "name": "BAföG Amt Office Hours (8:00-17:30)",
+      "time_periods": [
+        {
+          "from": "MONDAY",
+          "to": "FRIDAY",
+          "beginTime": "07:30:00.000",
+          "endTime": "16:00:00.000"
+        }
+      ]
+    }
+  ]
+}
