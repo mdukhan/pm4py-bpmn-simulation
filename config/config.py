@@ -11,7 +11,7 @@ CFG_DIR     = BPMN_DIR / "bpmn_config"
 OUTPUTS_DIR = DATA_DIR / "outputs"
 XES_DIR     = OUTPUTS_DIR / "event_logs" /"xes"
 CSV_DIR     = OUTPUTS_DIR / "event_logs" /"csv"
-
+JSON_DIR    = OUTPUTS_DIR / "event_logs" /"json"
 @dataclass(frozen=True)
 class BPMNAsset:
     key: str
