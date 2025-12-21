@@ -25,6 +25,11 @@ BPMN_ASSETS: Dict[str, BPMNAsset] = {
         bpmn_path=BPMN_DIR / "bafoeg_process.bpmn",
         prosimos_config_path=CFG_DIR / "bafoeg_prosimos_config.json",
     ),
+    "bafoeg_ocel": BPMNAsset(
+        key="bafoeg_ocel",
+        bpmn_path=BPMN_DIR / "bafoeg_ocel.bpmn",
+        prosimos_config_path=CFG_DIR / "bafoeg_prosimos_config.json",
+    ),
     "group10_extended": BPMNAsset(
         key="group10_extended_alina",
         bpmn_path=BPMN_DIR / "group_10_Extended_Alina.bpmn",

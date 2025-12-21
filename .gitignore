@@ -21,3 +21,11 @@ Thumbs.db
 
 # Logs
 #*.log
+
+# LaTeX
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.aux
+*.out
+*.log

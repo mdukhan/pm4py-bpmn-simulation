@@ -1,0 +1,154 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{amsmath}
+
+\title{Parametrisierung f\"ur die BAf\"oG-OCEL-Simulation (Hamburg, Wintersemester 2024/2025)}
+\author{Arbeitsgrundlage f\"ur Simulation}
+\date{Dezember 2025}
+
+\begin{document}
+\maketitle
+
+\section{Scope und Annahmen}
+\begin{itemize}
+  \item Szenario: Eingang digitaler BAf\"oG-Antr\"age f\"ur Hamburg zum Wintersemester 2024/2025; Spitzenlast durch Semesterstart (63\% der Antr\"age um den Winterstart~\cite{sh2024}). Datengrundlage Hamburg: 15.564 Gef\"orderte 2024~\cite{destatis2024}.
+  \item Fokus: Application Creation (nur Erstantr\"age). Wir betrachten spezifisch den Prozess f\"ur Erstbewilligungen, da dieser komplexer ist und den gr\"o\ss{}ten Teil der manuellen Last ausmacht.
+  \item Annahme Volumen: Wir simulieren ein High-Load-Szenario, bei dem das gesamte Antragsvolumen (ca. 9.800 im Peak) als Erstantr\"age behandelt wird, um die Belastbarkeit des Systems unter maximaler Komplexit\"at zu pr\"ufen. Alternativ k\"onnte ein Split von ca. 50\% Erstantr\"agen angenommen werden.
+  \item Fokus: Application Creation (Initialantr\"age), ohne Folgeantr\"age, laufende Vertragsverwaltung oder Pupils/Study-Abroad-F\"alle.\footnote{Diese Teilprozesse folgen einer abweichenden Logik (oft Dunkelverarbeitung oder reine Auszahlungst\"atigkeiten) und werden daher zur Komplexit\"atsreduktion in diesem Szenario nicht betrachtet. Der Fokus liegt auf der manuellen Pr\"ufintensit\"at von Erstbewilligungen.}
+  \item Datengrundlage: Bundesrechnungshof-Bericht 2024~\cite{brh2024}, Abschlussbericht \glqq Einfacher zum Studierenden-BAf\"oG\grqq{}~\cite{einfacher2010}, Studentenwerk SH FAQ 2024~\cite{sh2024}, Statistik Bayern 2022~\cite{statbay2022}, Projektbericht Bewilligungsquoten 2012~\cite{bewilligung2012}.
+\end{itemize}
+
+\section{Prozesskontext}
+\begin{itemize}
+  \item Szenario: Antragseing\"ange im Wintersemester 2024/2025 f\"ur Hamburg; Hauptbetrachtung ist die digitale Antragserstellung und -bearbeitung.
+  \item Fokus: Reine \glqq Application Creation\grqq{} (nur Initialantr\"age). Startpunkt ist \glqq Application started\grqq{} = Datensatz im System eingegangen; Vorarbeiten des Studierenden vor Eingang bleiben unber\"ucksichtigt, da sie die Amtsdurchlaufzeit nicht beeinflussen.
+  \item Out of Scope: Laufende Vertragsverwaltung sowie Pupils und Study-Abroad-F\"alle (k\"onnen sp\"ater simuliert werden).
+  \item Datengetriebener Modellansatz: Neues BPMN ist st\"arker datengetrieben als fr\"uhere Version; \glqq Receive Document\grqq{} wird singular modelliert (Best Practice), obwohl OCEL technisch 1:N zulie\ss{}e.
+  \item Kanalannahme: Ausschlie\ss{}lich Antr\"age \"uber BAf\"og-Digital (keine Papier- oder Mischkan\"ale) f\"ur dieses Szenario.
+\end{itemize}
+
+\section{Ankunftsprozess (Interarrival)}
+Lastspitzen orientieren sich an Wintersemester-Start; 63\% der Antr\"age kommen rund um den Winterstart~\cite{sh2024} (auf Hamburg angewandt \(\approx 9.800\) von 15.564 Gef\"orderten~\cite{destatis2024}). BRH beschreibt saisonale Ballung~\cite{brh2024}. Die Interarrival-Zeiten sind daher st\"arker verdichtet in den Abendstunden (Online-Abgabe) und an Werktagen.
+
+\begin{longtable}{@{}p{2.5cm}p{2cm}p{2.5cm}p{3cm}p{5cm}@{}}
+\toprule
+Zeitfenster & Wochentage & Verteilung & Parameter & Begr\"undung \\
+\midrule
+08:00--16:00 & Mo--Fr & Exponential & Mittel 120 min & Hauptgesch\"aftszeit, moderater Strom digitaler Eing\"ange. Aussage saisonaler Spitzen~\cite{brh2024}. \\
+16:00--21:00 & Mo--Fr & Exponential & Mittel 30 min & Feierabend-Peak bei Online-Abgabe~\cite{sh2024}. \\
+21:00--23:59 & Mo--Fr & Exponential & Mittel 180 min & Sp\"atabgabe, geringere Dichte. \\
+Ganztags & Sa--So & Exponential & Mittel 300 min & Wochenende, geringere Interarrival (Online-only)~\cite{sh2024}. \\
+\bottomrule
+\end{longtable}
+
+Kalibrierung: Mittelwerte stammen aus \texttt{BAfoeg\_Params.md}; saisonaler Faktor (3--5x erh\"oht f\"ur September--November) kann auf alle Mittelwerte angewendet werden, um die 63\%-Spitze (\(\approx\) 9.800 Antr\"age) abzubilden.
+
+\section{Gateways}
+\subsection{Eligibility Decision?}
+\begin{itemize}
+  \item Quelle: Tabellen 22/23~\cite{bewilligung2012} zeigen Inland: 17.112 Antr\"age, davon 14.537 bewilligt (\(\approx 85\%\)).
+  \item Abgeleitet: Pfadwahrscheinlichkeit accepted = 80\%, rejected = 20\% (leicht konservativ gegen\"uber 85\% wegen regionaler Streuung und aktuellen R\"uckst\"anden~\cite{brh2024}).
+  \item \textbf{Schema-Mapping:} Steuert Attribut \texttt{Application.status} (\glqq Approved\grqq{} vs. \glqq Rejected\grqq{}).
+\end{itemize}
+
+\subsection{Documents Missing?}
+\begin{itemize}
+  \item Quellen: Nur 1--2\% vollst\"andig bei Papier-Erstantr\"agen~\cite{einfacher2010}; bei Weiterf\"orderungen 35\% komplett~\cite{sh2024}.
+  \item Herleitung: Da der Fokus nun ausschlie\ss{}lich auf Erstantr\"agen liegt, ist das Risiko unvollst\"andiger Unterlagen h\"oher (\(\approx 98\%\) bei Papier). Durch die Nutzung des digitalen Assistenten (BAf\"oG Digital) wird eine Verbesserung angenommen. Wir setzen das Risiko Documents Missing = 60\%, Complete = 40\% (konservativer als beim Mischszenario, um der Komplexit\"at von Erstantr\"agen Rechnung zu tragen).
+  \item \textbf{Schema-Mapping:} Korreliert mit \texttt{Document.status} (\glqq Missing\grqq{} vs. \glqq Received\grqq{}).
+\end{itemize}
+
+\subsection{Parent Data Required?}
+\begin{itemize}
+  \item Quelle: Statistik Bayern 2022~\cite{statbay2022} nennt 13.637 elternunabh\"angige bei 74.771 Gef\"orderten (\(\approx 18\%\)).
+  \item Abgeleitet: Pfad yes (Elternunterlagen ben\"otigt) = 80\%, no = 20\% (aufgerundet, da Hamburg-Quote tendenziell \"uber dem Bayern-Wert liegen kann).
+  \item \textbf{Schema-Mapping:} Steuert Attribut \texttt{Application.is\_parent\_independent} (FALSE = Elternunterlagen n\"otig).
+\end{itemize}
+
+\section{Aktivit\"atsdauern}
+Normal- oder Exponentialverteilungen wie in Simulationsschema. Die Quellen~\cite{einfacher2010} geben Gesamtbearbeitungszeiten pro Antrag (Erstantrag \(64\,\text{min}\), Weiterf\"orderung \(52\,\text{min}\)). Zur Ableitung der Aktivitätsdauern wurden folgende Annahmen getroffen:
+\begin{itemize}
+  \item Aufgabenanteile (manuell, ohne Wartezeiten): Review 40\%, Assess 20\%, Calculate 25\%, Notification/Rejection 15\%. Begr\"undet durch Sequenz der inhaltlichen Pr\"ufung (Review > Assess > Berechnung > Bescheid).
+  \item Szenario Erstantrag: Erwartungswert Gesamt \( 64\,\text{min} \)~\cite{einfacher2010}. Daraus Review \(\approx 26\,\text{min}\), Assess \(\approx 13\,\text{min}\), Calculate \(\approx 16\,\text{min}\), Notification/Rejection \(\approx 10\,\text{min}\).
+  \item Streuung (Normal, getrimmt): \(\sigma\) etwa 30\% des Mittelwerts; min/max so gesetzt, dass Extremwerte \(\pm\)2--3\,\(\sigma\) plausibel bleiben. Request Document bleibt h\"oher wegen individueller Kl\"arung; Receive Document bleibt Wartezeit (Exponential) aus~\cite{brh2024}.
+\end{itemize}
+
+\subsection{Dokumenttypen und Komplexit\"atsfaktoren}
+F\"ur eine detaillierte Simulation k\"onnen die Bearbeitungszeiten basierend auf dem Dokumenttyp (\texttt{Document.doc\_type}) skaliert werden.
+
+\textbf{Generierungslogik (Welche Dokumente entstehen pro Antrag?):}
+\begin{itemize}
+    \item \textbf{Formblatt 1 (Antrag):} Wird immer generiert (Basis-Dokument). Komplexit\"atsfaktor 1.0.
+    \item \textbf{Immatrikulationsbescheinigung (Ersatz f\"ur FB 2):} Wird immer generiert. Faktor 0.5 (Kurzpr\"ufung).
+    \item \textbf{Formblatt 3 (Einkommen Eltern):} Wird nur generiert, wenn \texttt{Application.is\_parent\_independent} = FALSE. Faktor 1.5 (hohe Pr\"ufdauer).
+    \item \textbf{Einkommensnachweise (Eltern):} Werden generiert, wenn FB 3 vorhanden ist (meist 2 St\"uck, Mutter/Vater). Faktor 1.3.
+    \item \textbf{Mietbescheinigung (Wohnnachweis):} Wird generiert, wenn \texttt{Application.housing\_type} != 'Eltern'. Faktor 0.8.
+\end{itemize}
+
+\begin{longtable}{@{}p{3.3cm}p{2.2cm}p{2.5cm}p{4cm}p{5cm}@{}}
+\toprule
+Aktivit\"at & Ressource & Verteilung & Parameter & Begr\"undung \\
+\midrule
+Send Application Mail & System & Uniform & 3--8 min & Automatisches Generieren + Versand; Summe zweier kurzer Schritte. \\
+Review Document & Clerk & Normal & $\mu=26$, $\sigma=8$, min 10, max 50 min & 40\% des Erstantrag-Werts (64 min) aus~\cite{einfacher2010}. \\
+Request Document & Clerk & Normal & $\mu=25$, $\sigma=8$, min 10, max 60 min & Schreiben/Pr\"ufen individueller Nachforderung; bleibt hoch wegen Variabilit\"at~\cite{einfacher2010}. \\
+Receive Document & System & Exponential & Mittel 10{,}080 min, min 1{,}440, max 20{,}160 & Wartezeit realistisch begrenzt auf 1--14 Tage f\"ur Standardl\"aufe; f\"ur Stau-Szenarien kann der Mittelwert auf 345.600 min laut~\cite{brh2024} erh\"oht werden. \\
+Assess Application & Clerk & Normal & $\mu=13$, $\sigma=4$, min 5, max 35 min & 20\% des Erstantrag-Werts; fachliche Bewertung. \\
+Calculate Claim & Clerk & Normal & $\mu=16$, $\sigma=5$, min 5, max 40 min & 25\% des Erstantrag-Werts; erh\"oht f\"ur Auslands-/Elternabh\"angigkeit~\cite{einfacher2010}. \\
+Send Notification & Clerk & Normal & $\mu=10$, $\sigma=3$, min 4, max 20 min & 15\% des Erstantrag-Werts; umfasst Schreiben + Versand. \\
+Send Rejection & Clerk & Normal & $\mu=10$, $\sigma=3$, min 4, max 20 min & Analog Notification; bei Ablehnung gleicher Aufwand. \\
+\bottomrule
+\end{longtable}
+
+\section{Ressourcen und Kalender}
+\subsection{System}
+\begin{itemize}
+  \item 24/7 verf\"ugbar, Kapazit\"at hoch (9999), Kosten 0~EUR/h.
+\end{itemize}
+
+\subsection{Clerk (Sachbearbeitung)}
+\begin{itemize}
+  \item Anzahl: angenommene 14 Sachbearbeitende. Herleitung: 15.564 Gef\"orderte (Hamburg 2024)~\cite{destatis2024} \(\approx\) 15.564 Antr\"age/Jahr, \(~1\,h\) manuelle Bearbeitung (64/52 min)~\cite{einfacher2010} \(\Rightarrow 15.564\,h/Jahr\). Bei 1.600 h/Jahr je Vollzeitstelle und 30\% Beratungsanteil~\cite{einfacher2010} ergibt sich \(15{,}564 / (1.600 \times 0{,}7) \approx 13{,}9\) FTE; gerundet 14 f\"ur Basis-Szenario.
+  \item Verf\"ugbarkeit: Mo--Fr 07:30--16:00 (Office-Hours~\cite{einfacher2010}).
+  \item Kostensatz: 35 EUR/h (angenommener Vollkostensatz f\"ur \"offentlichen Dienst E9-E10).\footnote{Kalkulation basiert auf TV-L E9/E10 (ca. 4.500--5.000 EUR Brutto) zzgl. Arbeitgeberanteile (ca. 20\%) und einem Gemeinkostenaufschlag (Overhead) f\"ur Arbeitsplatz und IT-Infrastruktur.}
+\end{itemize}
+
+\subsection{Kalender}
+\begin{itemize}
+  \item Systemkalender: 00:00--23:59, alle Tage.
+  \item Amtskalender: Mo--Fr 07:30--16:00.
+  \item Saisonale Last: September--November 3--5x Interarrival (qualitativ aus~\cite{brh2024} und~\cite{sh2024}).
+\end{itemize}
+
+\section{Kritische Annahmen und Modellierungshinweise}
+\begin{itemize}
+  \item Receive Document Basisszenario: 1--14 Tage (Exponential, Mittel 10{,}080 min). F\"ur Stau-Analysen Mittelwert 240 Tage (BRH Tz. 9.2~\cite{brh2024}).
+  \item Gateway Documents Missing?: Fokus Erstantr\"age erh\"oht Komplexit\"at. Annahme Missing 60\%, Complete 40\%. (Digitaler Assistent verhindert schlimmste Papier-Quoten von 98\%).
+  \item Chronologische Abarbeitung erzeugt Backlog; Warteschlangen zwischen allen manuellen Aktivit\"aten einplanen (BRH Tz. 9.2~\cite{brh2024}).
+  \item Beratung bindet 30\% Kapazit\"at~\cite{einfacher2010}; entweder als Reduktion effektiver Ressourcenstunden oder als eigene St\"orung modellieren.
+\end{itemize}
+
+\section{Simulationsempfehlungen}
+\begin{itemize}
+  \item KPIs: Cycle Time je Antrag, Auslastung Sachbearbeiter, Wartezeiten pro Queue, Kosten pro Antrag, Bewilligungsquote.
+  \item Experimente: Sensitivit\"at auf Dokumentvollst\"andigkeit (Gateway), Variation Receive-Document-Mittelwert, Personalkapazit\"at (z.B. 10--16 FTE), saisonale Peaks vs. Normalsemester.
+  \item Setup (Prosimos): Simulation\_time 86{,}400; warmup 0; replications 1; seed 42 (aus Vorgabedatei).
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{brh2024} Bundesrechnungshof (2024): Bericht zum BAf\"oG, Volltext. Tz. 2.2.1, 3.2, 9.1, 9.2 u.a. URL: \url{https://www.bundesrechnungshof.de/SharedDocs/Downloads/DE/Berichte/2024/bafoeg-volltext.pdf?__blob=publicationFile&v=2}
+\bibitem{einfacher2010} Projekt \glqq Einfacher zum Studierenden-BAf\"oG\grqq{} (2010): Abschlussbericht. URL: \url{https://www.bundesregierung.de/resource/blob/2065474/396444/d606b826f7415afb0c091c30e968e383/2010-03-17-abschlussbericht-einfacher-zum-bafoeg-data.pdf?download=1}
+\bibitem{bewilligung2012} Projektbericht (2012): Tabellen 22/23 Bewilligungsquoten Inland. URL: \url{https://www.bundesregierung.de/resource/blob/974430/455514/00c68b52fe5801d0f59643345aa942a2/2012-06-22-projektbericht-7-data.pdf?download=1}
+\bibitem{sh2024} Studentenwerk Schleswig-Holstein (2024): FAQ \glqq Warum dauert die BAf\"oG-Bearbeitung l\"anger?\grqq{} URL: \url{https://studentenwerk.sh/de/bafoeg-warum-die-antragstellung-laenger-dauert}
+\bibitem{destatis2024} DESTATIS (2024): BAf\"oG Gef\"orderte nach L\"andern (Tabelle 21411-0020). URL: \url{https://www-genesis.destatis.de/datenbank/online/statistic/21411/table/21411-0020}
+\bibitem{statbay2022} Statistik Bayern (2022): BAf\"oG Gef\"orderte; Anteil elternunabh\"angig. URL: \url{https://www.statistik.bayern.de/mam/produkte/veroffentlichungen/statistische_berichte/k9100c_202200.pdf}
+\end{thebibliography}
+
+\end{document}
