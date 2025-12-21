@@ -75,9 +75,16 @@ Kalibrierung: Mittelwerte stammen aus \texttt{BAfoeg\_Params.md}; saisonaler Fak
 \section{Aktivit\"atsdauern}
 Normal- oder Exponentialverteilungen wie in Simulationsschema. Die Quellen~\cite{einfacher2010} geben Gesamtbearbeitungszeiten pro Antrag (Erstantrag \(64\,\text{min}\), Weiterf\"orderung \(52\,\text{min}\)). Zur Ableitung der Aktivitätsdauern wurden folgende Annahmen getroffen:
 \begin{itemize}
-  \item Aufgabenanteile (manuell, ohne Wartezeiten): Review 40\%, Assess 20\%, Calculate 25\%, Notification/Rejection 15\%. Begr\"undet durch Sequenz der inhaltlichen Pr\"ufung (Review > Assess > Berechnung > Bescheid).
-  \item Szenario Erstantrag: Erwartungswert Gesamt \( 64\,\text{min} \)~\cite{einfacher2010}. Daraus Review \(\approx 26\,\text{min}\), Assess \(\approx 13\,\text{min}\), Calculate \(\approx 16\,\text{min}\), Notification/Rejection \(\approx 10\,\text{min}\).
-  \item Streuung (Normal, getrimmt): \(\sigma\) etwa 30\% des Mittelwerts; min/max so gesetzt, dass Extremwerte \(\pm\)2--3\,\(\sigma\) plausibel bleiben. Request Document bleibt h\"oher wegen individueller Kl\"arung; Receive Document bleibt Wartezeit (Exponential) aus~\cite{brh2024}.
+  \item Quelle: Tabelle 22 \glqq Durchschnittliche Standardzeiten ... Studierendenwerk Hamburg\grqq{}~\cite{bewilligung2012}.
+  \item Szenario Erstantrag: Gesamtsumme Standardzeiten = \textbf{83 min}.
+  \item Ableitung der Anteile (basierend auf Tab. 22):
+  \begin{itemize}
+      \item \textbf{Review:} ca. 30\% der Gesamtzeit (entspricht Sichten, Erfassen, Archivieren) \(\approx 25\,\text{min}\).
+      \item \textbf{Assess:} ca. 30\% der Gesamtzeit (entspricht Pr\"ufen, Besprechungen, R\"uckfragen) \(\approx 25\,\text{min}\).
+      \item \textbf{Calculate:} ca. 25\% der Gesamtzeit (entspricht Berechnungen) \(\approx 21\,\text{min}\).
+      \item \textbf{Notification/Rejection:} ca. 15\% der Gesamtzeit (entspricht Aufbereiten, Versenden) \(\approx 12\,\text{min}\).
+  \end{itemize}
+  \item Streuung: Da Tabelle Standardzeiten (Mittelwerte) nennt, nehmen wir $\sigma \approx 25-30\%$ an.
 \end{itemize}
 
 \subsection{Dokumenttypen und Komplexit\"atsfaktoren}
@@ -87,7 +94,7 @@ F\"ur eine detaillierte Simulation k\"onnen die Bearbeitungszeiten basierend auf
 \begin{itemize}
     \item \textbf{Formblatt 1 (Antrag):} Wird immer generiert (Basis-Dokument). Komplexit\"atsfaktor 1.0.
     \item \textbf{Immatrikulationsbescheinigung (Ersatz f\"ur FB 2):} Wird immer generiert. Faktor 0.5 (Kurzpr\"ufung).
-    \item \textbf{Formblatt 3 (Einkommen Eltern):} Wird nur generiert, wenn \texttt{Application.is\_parent\_independent} = FALSE. Faktor 1.5 (hohe Pr\"ufdauer).
+    \item \textbf{Formblatt 3 (Einkommen Eltern):} Wird nur generiert, wenn \texttt{Application.is\_parent\_independent} = FALSE. Faktor 1.5 (hohe Pr\"ufdauer).\footnote{\glqq Fast 50 Prozent der Befragten finden den Antrag in Teilen unverst\"andlich. Dabei wurde Formblatt 3 am st\"arksten kritisiert.\grqq{} Quelle: Einfacher zum Studierenden-BAf\"oG, S. 5~\cite{einfacher2010}.}
     \item \textbf{Einkommensnachweise (Eltern):} Werden generiert, wenn FB 3 vorhanden ist (meist 2 St\"uck, Mutter/Vater). Faktor 1.3.
     \item \textbf{Mietbescheinigung (Wohnnachweis):} Wird generiert, wenn \texttt{Application.housing\_type} != 'Eltern'. Faktor 0.8.
 \end{itemize}
@@ -97,13 +104,13 @@ F\"ur eine detaillierte Simulation k\"onnen die Bearbeitungszeiten basierend auf
 Aktivit\"at & Ressource & Verteilung & Parameter & Begr\"undung \\
 \midrule
 Send Application Mail & System & Uniform & 3--8 min & Automatisches Generieren + Versand; Summe zweier kurzer Schritte. \\
-Review Document & Clerk & Normal & $\mu=26$, $\sigma=8$, min 10, max 50 min & 40\% des Erstantrag-Werts (64 min) aus~\cite{einfacher2010}. \\
-Request Document & Clerk & Normal & $\mu=25$, $\sigma=8$, min 10, max 60 min & Schreiben/Pr\"ufen individueller Nachforderung; bleibt hoch wegen Variabilit\"at~\cite{einfacher2010}. \\
+Review Document & Clerk & Normal & $\mu=25$, $\sigma=7$, min 10, max 60 min & 30\% von 83 min (Tab. 22); Fokus Vollst\"andigkeitspr\"ufung (Sichten, Erfassen). \\
+Request Document & Clerk & Normal & $\mu=14$, $\sigma=5$, min 5, max 30 min & Wert aus Tab. 22 (Fehlende Daten, R\"uckfragen) direkt \"ubernommen. \\
 Receive Document & System & Exponential & Mittel 10{,}080 min, min 1{,}440, max 20{,}160 & Wartezeit realistisch begrenzt auf 1--14 Tage f\"ur Standardl\"aufe; f\"ur Stau-Szenarien kann der Mittelwert auf 345.600 min laut~\cite{brh2024} erh\"oht werden. \\
-Assess Application & Clerk & Normal & $\mu=13$, $\sigma=4$, min 5, max 35 min & 20\% des Erstantrag-Werts; fachliche Bewertung. \\
-Calculate Claim & Clerk & Normal & $\mu=16$, $\sigma=5$, min 5, max 40 min & 25\% des Erstantrag-Werts; erh\"oht f\"ur Auslands-/Elternabh\"angigkeit~\cite{einfacher2010}. \\
-Send Notification & Clerk & Normal & $\mu=10$, $\sigma=3$, min 4, max 20 min & 15\% des Erstantrag-Werts; umfasst Schreiben + Versand. \\
-Send Rejection & Clerk & Normal & $\mu=10$, $\sigma=3$, min 4, max 20 min & Analog Notification; bei Ablehnung gleicher Aufwand. \\
+Assess Application & Clerk & Normal & $\mu=25$, $\sigma=7$, min 10, max 50 min & 30\% von 83 min (Tab. 22); umfasst Pr\"ufung, Besprechungen, Kl\"arungen. \\
+Calculate Claim & Clerk & Normal & $\mu=21$, $\sigma=6$, min 10, max 45 min & 25\% von 83 min (Tab. 22); Berechnungen. \\
+Send Notification & Clerk & Normal & $\mu=12$, $\sigma=3$, min 5, max 25 min & 15\% von 83 min (Tab. 22); Bescheid erstellen und versenden. \\
+Send Rejection & Clerk & Normal & $\mu=12$, $\sigma=3$, min 5, max 25 min & Analog Notification. \\
 \bottomrule
 \end{longtable}
 
@@ -131,8 +138,25 @@ Send Rejection & Clerk & Normal & $\mu=10$, $\sigma=3$, min 4, max 20 min & Anal
 \begin{itemize}
   \item Receive Document Basisszenario: 1--14 Tage (Exponential, Mittel 10{,}080 min). F\"ur Stau-Analysen Mittelwert 240 Tage (BRH Tz. 9.2~\cite{brh2024}).
   \item Gateway Documents Missing?: Fokus Erstantr\"age erh\"oht Komplexit\"at. Annahme Missing 60\%, Complete 40\%. (Digitaler Assistent verhindert schlimmste Papier-Quoten von 98\%).
-  \item Chronologische Abarbeitung erzeugt Backlog; Warteschlangen zwischen allen manuellen Aktivit\"aten einplanen (BRH Tz. 9.2~\cite{brh2024}).
+  \item Chronologische Abarbeitung erzeugt Backlog; Warteschlangen zwischen allen manuellen Aktivit\"aten einplanen (BRH Tz. 9.2~\cite{brh2024}).\footnote{\glqq Verz\"ogerungsgr\"unde seien regelm\"a\ss{}ig unvollst\"andige Antr\"age oder ein vor\"ubergehender Ausfall von Sachbearbeitenden.\grqq{} Quelle: Bundesrechnungshof, S. 82, Tz. 9.5~\cite{brh2024}.}
   \item Beratung bindet 30\% Kapazit\"at~\cite{einfacher2010}; entweder als Reduktion effektiver Ressourcenstunden oder als eigene St\"orung modellieren.
+\end{itemize}
+
+\section{Geplante Prozessabweichungen (Deviations)}
+Um die F\"ahigkeiten des Conformance Checkings zu validieren, werden gezielt Abweichungen in den Simulationsdaten erzeugt, die vom Standardprozess (Happy Path) abweichen.
+
+\begin{itemize}
+    \item \textbf{Review Documents Skip (Missing Activity):}
+    \begin{itemize}
+        \item \textbf{Szenario:} Bei 10\% der F\"alle wird der Schritt \glqq Review Document\grqq{} \"ubersprungen. Der Prozess l\"auft direkt weiter zu \glqq Assess Application\grqq{}.
+        \item \textbf{Bedeutung:} Dies simuliert ein \"Uberspringen der formalen Qualit\"atskontrolle. Im Conformance Check muss dies als \glqq Missing Activity\grqq{} erkannt werden.
+    \end{itemize}
+
+    \item \textbf{Direkte Ablehnung (Shortened Path):}
+    \begin{itemize}
+        \item \textbf{Szenario:} Bei 5\% der F\"alle bricht der Prozess nach \glqq Review Document\grqq{} (oder direkt bei Eingang) sofort ab und springt zu einem End-Event (z.B. \glqq Application Rejected\grqq{}), ohne die weiteren Pr\"ufungsschritte (\glqq Assess\grqq{}, \glqq Calculate\grqq{}) zu durchlaufen.
+        \item \textbf{Bedeutung:} Simuliert eine sofortige Ablehnung (z.B. wegen offensichtlicher Formfehler), die im Standardmodell so nicht vorgesehen ist (Abk\"urzung). Im Conformance Check als \glqq Shortened Path\grqq{} oder unerlaubte Kante erkennbar.
+    \end{itemize}
 \end{itemize}
 
 \section{Simulationsempfehlungen}
