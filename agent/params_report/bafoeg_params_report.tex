@@ -103,10 +103,13 @@ F\"ur eine detaillierte Simulation k\"onnen die Bearbeitungszeiten basierend auf
 \toprule
 Aktivit\"at & Ressource & Verteilung & Parameter & Begr\"undung \\
 \midrule
-Send Application Mail & System & Uniform & 3--8 min & Automatisches Generieren + Versand; Summe zweier kurzer Schritte. \\
+Send Application Mail & System & Uniform & 1--3 min & Automatisches Generieren + Versand (optimiert f\"ur digitale Prozesse). \\
+Receive Application & System & Uniform & 1--5 min & Automatischer Antragseingang im System. \\
+Request Parent Data & System & Uniform & 0{,}5--2 min & Automatischer API-Abruf der Elterndaten (kein manueller Aufwand). \\
+Receive Parent Data & System & Exponential & Mittel 10{,}080 min, min 1{,}440, max 20{,}160 & Wartezeit auf Elterndaten (1--14 Tage). \\
 Review Document & Clerk & Normal & $\mu=25$, $\sigma=7$, min 10, max 60 min & 30\% von 83 min (Tab. 22); Fokus Vollst\"andigkeitspr\"ufung (Sichten, Erfassen). \\
-Request Document & Clerk & Normal & $\mu=14$, $\sigma=5$, min 5, max 30 min & Wert aus Tab. 22 (Fehlende Daten, R\"uckfragen) direkt \"ubernommen. \\
-Receive Document & System & Exponential & Mittel 10{,}080 min, min 1{,}440, max 20{,}160 & Wartezeit realistisch begrenzt auf 1--14 Tage f\"ur Standardl\"aufe; f\"ur Stau-Szenarien kann der Mittelwert auf 345.600 min laut~\cite{brh2024} erh\"oht werden. \\
+Request Missing Documents & Clerk & Normal & $\mu=14$, $\sigma=5$, min 5, max 30 min & Wert aus Tab. 22 (Fehlende Daten, R\"uckfragen) direkt \"ubernommen. \\
+Receive Missing Documents & System & Exponential & Mittel 10{,}080 min, min 1{,}440, max 20{,}160 & Wartezeit auf fehlende Dokumente (1--14 Tage). \\
 Assess Application & Clerk & Normal & $\mu=25$, $\sigma=7$, min 10, max 50 min & 30\% von 83 min (Tab. 22); umfasst Pr\"ufung, Besprechungen, Kl\"arungen. \\
 Calculate Claim & Clerk & Normal & $\mu=21$, $\sigma=6$, min 10, max 45 min & 25\% von 83 min (Tab. 22); Berechnungen. \\
 Send Notification & Clerk & Normal & $\mu=12$, $\sigma=3$, min 5, max 25 min & 15\% von 83 min (Tab. 22); Bescheid erstellen und versenden. \\
