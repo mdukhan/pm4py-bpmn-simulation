@@ -1,0 +1,11 @@
+event_id;timestamp;activity
+E01;2023-12-01 08:00:00;Paket erfasst
+E02;2023-12-01 08:05:00;Paket erfasst
+E03;2023-12-01 08:10:00;Paket erfasst
+E04;2023-12-01 08:15:00;Paket erfasst
+E05;2023-12-01 09:00:00;Verladung
+E06;2023-12-01 09:05:00;Verladung
+E07;2023-12-01 09:10:00;Verladung
+E08;2023-12-01 09:15:00;Verladung
+E09;2023-12-01 10:00:00;Paket erfasst
+E10;2023-12-01 10:30:00;Verladung
