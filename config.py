@@ -3,15 +3,22 @@ from pathlib import Path
 from typing import Dict
 
 # Project root = parent of the "config" folder
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent
 
 DATA_DIR    = ROOT / "data"
 BPMN_DIR    = DATA_DIR / "bpmn_models"
-CFG_DIR     = BPMN_DIR / "bpmn_config"
+CFG_DIR     = BPMN_DIR / "simulation_config"
 OUTPUTS_DIR = DATA_DIR / "outputs"
-XES_DIR     = OUTPUTS_DIR / "event_logs" /"xes"
-CSV_DIR     = OUTPUTS_DIR / "event_logs" /"csv"
-JSON_DIR    = OUTPUTS_DIR / "event_logs" /"json"
+
+EVENT_LOGS_DIR = OUTPUTS_DIR / "event_logs"
+CASE_CENTRIC_DIR = EVENT_LOGS_DIR / "case_centric"
+XES_DIR     = CASE_CENTRIC_DIR /"xes"
+CSV_DIR     = CASE_CENTRIC_DIR /"csv"
+JSON_DIR    = CASE_CENTRIC_DIR /"json"
+
+OCEL_DIR = EVENT_LOGS_DIR / "ocel"
+OCEL_SIMULATION_DIR = CFG_DIR / "sim_ocel_config.json"
+
 @dataclass(frozen=True)
 class BPMNAsset:
     key: str
@@ -28,7 +35,7 @@ BPMN_ASSETS: Dict[str, BPMNAsset] = {
     "bafoeg_ocel": BPMNAsset(
         key="bafoeg_ocel",
         bpmn_path=BPMN_DIR / "bafoeg_ocel.bpmn",
-        prosimos_config_path=CFG_DIR / "bafoeg_prosimos_config.json",
+        prosimos_config_path=CFG_DIR / "sim_ocel_config.json",
     ),
     "group10_extended": BPMNAsset(
         key="group10_extended_alina",
