@@ -9,6 +9,8 @@
 \usepackage{longtable}
 \usepackage{amsmath}
 \usepackage{apalike}
+\usepackage{graphicx} 
+\usepackage{rotating}
 
 \title{Parametrisierung f\"ur die BAf\"oG-OCEL-Simulation \\[1ex] \large Business Process Management (WS 25/26) \\ Group 10}
 \author{Alina Thoden \\ Haya Edris \\ Mansour Dukhan \\ David Derr \\ Büsra Bugrahan \\ Jan Gödicke}
@@ -30,8 +32,14 @@ Startpunkt ist „Application started", also der Zeitpunkt des Dateneinggangs im
 Wir simulieren ein High-Load-Szenario, bei dem das gesamte Antragsvolumen (9.800 bei Start des Wintersemesters) als Erstantr\"age behandelt wird, um die Belastbarkeit des Systems unter maximaler Komplexit\"at zu pr\"ufen.
 
 \subsection{Modellierungsansatz}
-Neues BPMN ist st\"arker datengetrieben als fr\"uhere Versionen.
-Aktuelles BPMN:
+Neues BPMN ist st\"arker datengetrieben als die initiale Version \autoref{fig:bafoeg_ocel}.
+
+\begin{sidewaysfigure}
+    \centering
+    \includegraphics[width=\textwidth]{bafoeg_ocel.png}
+    \caption{Aktuelles BPMN des BAföG-Prozesses}
+    \label{fig:bafoeg_ocel}
+\end{sidewaysfigure}
 
 \section{Interarrival}
 Die Lastspitzen orientieren sich am Wintersemester-Start. Nach ~\cite{sh2024} gehen etwa 63\,\% der Anträge rund um den Winterstart ein. Auf Hamburg übertragen entspricht das etwa 9.800 von 15.564 geförderten Studierenden~\cite{destatis2024}. Wir nehmen folgende Interarrival-Zeiten an:
@@ -153,6 +161,8 @@ Um einen Conformance Check zu demonstrieren, werden gezielt Abweichungen in den 
   \item KPIs: Cycle Time je Antrag, Auslastung Sachbearbeiter, Wartezeiten pro Queue, Bewilligungsquote.
   \item Experimente: Sensitivit\"at auf Dokumentvollst\"andigkeit (Gateway), Variation Receive-Document-Mittelwert, Personalkapazit\"at (z.B. 10--16 FTE), saisonale Peaks vs. Normalsemester.
 \end{itemize}
+
+\newpage
 
 \bibliographystyle{apalike}
 \begin{thebibliography}{9}
