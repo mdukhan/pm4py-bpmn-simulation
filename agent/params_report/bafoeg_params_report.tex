@@ -10,30 +10,37 @@
 \usepackage{amsmath}
 \usepackage{apalike}
 
-\title{Parametrisierung f\"ur die BAf\"oG-OCEL-Simulation (Hamburg, Wintersemester 2024/2025)}
-\author{Arbeitsgrundlage f\"ur Simulation}
-\date{Dezember 2025}
+\title{Parametrisierung f\"ur die BAf\"oG-OCEL-Simulation \\[1ex] \large Business Process Management (WS 25/26) \\ Group 10}
+\author{Alina Thoden \\ Haya Edris \\ Mansour Dukhan \\ David Derr \\ Büsra Bugrahan \\ Jan Gödicke}
+\date{\today}
 
 \begin{document}
 \maketitle
 
 \section{Prozesskontext}
-\begin{itemize}
-  \item Szenario: Eingang digitaler BAf\"oG-Antr\"age f\"ur Hamburg zum Wintersemester 2024/2025; Spitzenlast durch Semesterstart (63\% der Antr\"age um den Winterstart~\cite{sh2024}). Datengrundlage Hamburg: 15.564 Gef\"orderte 2024~\cite{destatis2024}.Hauptbetrachtung ist die digitale Antragserstellung und -bearbeitung. Out of Scope: Laufende Vertragsverwaltung sowie Pupils und Study-Abroad-F\"alle.
-  \item Fokus: Application Creation (nur Erstantr\"age). Wir betrachten spezifisch den Prozess f\"ur Erstbewilligungen, da dieser komplexer ist und den gr\"o\ss{}ten Teil der manuellen Last ausmacht. Application Creation (Initialantr\"age), ohne Folgeantr\"age, laufende Vertragsverwaltung oder Pupils/Study-Abroad-F\"alle werden nicht berücksichtigt. Startpunkt ist \glqq Application started\grqq{} = Datensatz im System eingegangen; Vorarbeiten des Studierenden vor Eingang bleiben unber\"ucksichtigt, da sie die Amtsdurchlaufzeit nicht beeinflussen. Kanalannahme: Ausschlie\ss{}lich Antr\"age \"uber BAf\"og-Digital (keine Papier- oder Mischkan\"ale) f\"ur dieses Szenario.
-  \item Annahme Volumen: Wir simulieren ein High-Load-Szenario, bei dem das gesamte Antragsvolumen (ca. 9.800 im Peak) als Erstantr\"age behandelt wird, um die Belastbarkeit des Systems unter maximaler Komplexit\"at zu pr\"ufen. 
-  \footnote{Diese Teilprozesse folgen einer abweichenden Logik (oft Dunkelverarbeitung oder reine Auszahlungst\"atigkeiten) und werden daher zur Komplexit\"atsreduktion in diesem Szenario nicht betrachtet. Der Fokus liegt auf der manuellen Pr\"ufintensit\"at von Erstbewilligungen.}
-  \item Datengetriebener Modellansatz: Neues BPMN ist st\"arker datengetrieben als fr\"uhere Version
-\end{itemize}
+
+\subsection{Szenario und Datengrundlage}
+Gegenstand der Simulation sind Eingänge von BAföG-Anträgen für Hamburg zum Wintersemester 2024/2025. Die Spitzenlast wird durch den Semesterstart geprägt, wobei etwa 63\,\% der Anträge um den Winterstart eingehen~\cite{sh2024}. Als Datengrundlage für Hamburg werden 15.564 geförderte Studierende im Jahr 2024 zugrunde gelegt~\cite{destatis2024}.
+
+\subsection{Prozessfokus}
+Der Fokus liegt auf der Bearbeitung von Erstanträgen, die ausschließlich digital über BAföG-Digital eingereicht werden. Das Szenario betrachtet damit nur Anträge über BAföG-Digital und schließt Papier- oder Mischkanäle sowie Folgeanträge, Schüler- und Auslands-BAföG aus. Eine Trennung zwischen Inlands- und Auslands-BAföG ist möglich, da die Personalkapazität auf diese aufgeteilt wird~\cite{bewilligung2012}.
+\\\\
+Startpunkt ist „Application started", also der Zeitpunkt des Dateneinggangs im System. Vorarbeiten des Studierenden bleiben unberücksichtigt, da sie die Amtsdurchlaufzeit nicht beeinflussen.
+\subsection{Volumenannahmen}
+Wir simulieren ein High-Load-Szenario, bei dem das gesamte Antragsvolumen (9.800 bei Start des Wintersemesters) als Erstantr\"age behandelt wird, um die Belastbarkeit des Systems unter maximaler Komplexit\"at zu pr\"ufen.
+
+\subsection{Modellierungsansatz}
+Neues BPMN ist st\"arker datengetrieben als fr\"uhere Versionen.
+Aktuelles BPMN:
 
 \section{Interarrival}
-Lastspitzen orientieren sich an Wintersemester-Start; 63\% der Antr\"age kommen rund um den Winterstart~\cite{sh2024} (auf Hamburg angewandt \(\approx 9.800\) von 15.564 Gef\"orderten~\cite{destatis2024}). BRH beschreibt saisonale Ballung~\cite{brh2024}. Die Interarrival-Zeiten sind daher st\"arker verdichtet in den Abendstunden (Online-Abgabe) und an Werktagen.
+Die Lastspitzen orientieren sich am Wintersemester-Start. Nach ~\cite{sh2024} gehen etwa 63\,\% der Anträge rund um den Winterstart ein. Auf Hamburg übertragen entspricht das etwa 9.800 von 15.564 geförderten Studierenden~\cite{destatis2024}. Wir nehmen folgende Interarrival-Zeiten an:
 
 \begin{longtable}{@{}p{2.5cm}p{2cm}p{2.5cm}p{3cm}p{5cm}@{}}
 \toprule
-Zeitfenster & Wochentage & Verteilung & Parameter & Begr\"undung \\
+Zeitfenster & Wochentage & Verteilung & Parameter & Annahme \\
 \midrule
-08:00--16:00 & Mo--Fr & Exponential & Mittel 120 min & Hauptgesch\"aftszeit, moderater Strom digitaler Eing\"ange. Aussage saisonaler Spitzen. \\
+08:00--16:00 & Mo--Fr & Exponential & Mittel 120 min & Hauptgesch\"aftszeit, moderater Strom digitaler Eing\"ange\\
 16:00--21:00 & Mo--Fr & Exponential & Mittel 30 min & Feierabend-Peak bei Online-Abgabe. \\
 21:00--23:59 & Mo--Fr & Exponential & Mittel 180 min & Sp\"atabgabe, geringere Dichte. \\
 Ganztags & Sa--So & Exponential & Mittel 300 min & Wochenende, geringere Interarrival (Online-only). \\
@@ -42,73 +49,76 @@ Ganztags & Sa--So & Exponential & Mittel 300 min & Wochenende, geringere Interar
 
 \section{Gateways}
 \subsection{Parent Data Required?}
-\begin{itemize}
-  \item Quelle: Statistik Bayern 2022~\cite{statbay2022} nennt 13.637 elternunabh\"angige bei 74.771 Gef\"orderten (\(\approx 18\%\)).
-  \item Abgeleitet: Pfad yes (Elternunterlagen ben\"otigt) = 80\%, no = 20\% (aufgerundet, da Hamburg-Quote tendenziell \"uber dem Bayern-Wert liegen kann).
-  \item \textbf{Schema-Mapping:} Steuert Attribut \texttt{Application.is\_parent\_independent} (FALSE = Elternunterlagen n\"otig).
-\end{itemize}
+Gemäß Statistik Bayern 2022~\cite{statbay2022} sind etwa 18\% der Geförderten elternunabhängig (13.637 von 74.771). Daraus leiten wir ab, dass in 80\% der Fälle Elternunterlagen benötigt werden, während 20\% elternunabhängig gefördert werden. Dies steuert das Attribut \texttt{Application.is\_parent\_independent} (FALSE = Elternunterlagen nötig).
 
 \subsection{Documents Missing?} 
-\begin{itemize}
-  \item Quellen: Nur 1--2\% vollst\"andig bei Papier-Erstantr\"agen~\cite{einfacher2010}; bei Weiterf\"orderungen 35\% komplett~\cite{sh2024}.
-  \item Herleitung: Da der Fokus nun ausschlie\ss{}lich auf Erstantr\"agen liegt, ist das Risiko unvollst\"andiger Unterlagen h\"oher (\(\approx 98\%\) bei Papier). Durch die Nutzung des digitalen Assistenten (BAf\"oG Digital) wird eine Verbesserung angenommen. Wir setzen das Risiko Documents Missing = 60\%, Complete = 40\% (konservativer als beim Mischszenario, um der Komplexit\"at von Erstantr\"agen Rechnung zu tragen).
-  \item \textbf{Schema-Mapping:} Korreliert mit \texttt{Document.status} (\glqq Missing\grqq{} vs. \glqq Received\grqq{}).
-\end{itemize}
+Nach Fachliteratur sind nur 1--2\% der Papier-Erstanträge vollständig~\cite{einfacher2010}, während bei Weiterförderungen etwa 35\% komplett eingereicht werden~\cite{sh2024}. Da der Fokus ausschließlich auf Erstanträgen liegt, ist das Risiko unvollständiger Unterlagen höher (ca. 98\% bei Papier). Durch die Nutzung des digitalen Assistenten BAföG Digital wird eine Verbesserung angenommen, weshalb wir das Risiko ``Documents Missing'' auf 70\% und ``Complete'' auf 30\% setzen. Dieses Gateway wird durch das Attribut \texttt{Document.status} (``Missing'' vs. ``Received'') gesteuert.
 
 \subsection{Eligibility Decision?}
-\begin{itemize}
-  \item Quelle: Der Anteil der nicht bewilligten Anträge liegt bei 16 Prozent. \cite{bewilligung2012}.
-  \item Abgeleitet: Pfadwahrscheinlichkeit accepted = 84\%, rejected = 16\%
-  \item \textbf{Schema-Mapping:} Steuert Attribut \texttt{Application.status} (\glqq Approved\grqq{} vs. \glqq Rejected\grqq{}).
-\end{itemize}
-
+Nach~\cite{bewilligung2012} liegt der Anteil nicht bewilligter Anträge bei 16\%. Die Pfadwahrscheinlichkeiten betragen somit 84\% für bewilligt und 16\% für abgelehnt. Dieses Gateway wird durch das Attribut \texttt{Application.status} (``Approved'' vs. ``Rejected'') gesteuert.
 
 \section{Aktivit\"atsdauern}
-Normal- oder Exponentialverteilungen wie in Simulationsschema. Zur Ableitung der Aktivitätsdauern wurden folgende Annahmen getroffen:
-\begin{itemize}
-  \item Quelle: Tabelle 22 \glqq Durchschnittliche Standardzeiten ... Studierendenwerk Hamburg\grqq{}~\cite{bewilligung2012}.
-  \item Szenario Erstantrag: Gesamtsumme Standardzeiten = \textbf{83 min}.
-  \item Ableitung der Anteile (basierend auf Tab. 22):
+Zur Ableitung der Aktivitätsdauern wurden die Standardzeiten aus Tabelle 22 („Durchschnittliche Standardzeiten der Antragsbearbeitung im Studierendenwerk Hamburg für die Inlandsförderung ")~\cite{bewilligung2012} herangezogen. Für das Szenario Erstantrag ergibt sich daraus eine Gesamtsumme von 83 Minuten. Die Anteile der Einzelaktivitäten wurden proportional zu den in Tabelle 22 angegebenen Standardzeiten bestimmt und auf die nachfolgend aufgeführten Aktivitätsgruppen verteilt:
+
   \begin{itemize}
       \item \textbf{Receive Application:} enstpricht Anlegen der Papierakte \(\approx 13\,\text{min}\)
       \item \textbf{Review:} entspricht Vollständigkeitsprüfung \(\approx 13\,\text{min}\).
       \item \textbf{Request Missing Data}  entspricht fehlende Daten oder Informationen einholen \(\approx 12\,\text{min}\).
-      \item \textbf{Assess:} entspricht hälfte von Berechnungen/Bewertungen durchführen \(\approx 15\,\text{min}\).
-      \item \textbf{Calculate:} entspricht hälfte von Berechnungen/Bewertungen durchführen inkl. Ergebnisse prüfen und korrigieren \(\approx 20\,\text{min}\).
+      \item \textbf{Assess:} entspricht Hälfte der Zeit von Berechnungen/Bewertungen durchführen \(\approx 15\,\text{min}\).
+      \item \textbf{Calculate:} entspricht Hälfte der Zeit von Berechnungen/Bewertungen durchführen inkl. Ergebnisse prüfen und korrigieren \(\approx 20\,\text{min}\).
       \item \textbf{Notification/Rejection:} entspricht Aufbereiten, Versenden \(\approx 10\,\text{min}\).
   \end{itemize}
-  \item Streuung: Da Tabelle Standardzeiten (Mittelwerte) nennt, nehmen wir $\sigma \approx 25-30\%$ an.
-\end{itemize}
 
-\subsection{Dokumenttypen und Komplexit\"atsfaktoren}
-F\"ur eine detaillierte Simulation k\"onnen die Bearbeitungszeiten basierend auf dem Dokumenttyp (\texttt{Document.doc\_type}) skaliert werden.
-
-\textbf{Generierungslogik (Welche Dokumente entstehen pro Antrag?):}
-\begin{itemize}
-    \item \textbf{Formblatt 1 (Antrag):} Wird immer generiert (Basis-Dokument). Komplexit\"atsfaktor 1.0.
-    \item \textbf{Immatrikulationsbescheinigung (Ersatz f\"ur FB 2):} Wird immer generiert. Faktor 0.5 (Kurzpr\"ufung).
-    \item \textbf{Formblatt 3 (Einkommen Eltern):} Wird nur generiert, wenn \texttt{Application.is\_parent\_independent} = FALSE. Faktor 1.5 (hohe Pr\"ufdauer).\footnote{\glqq Fast 50 Prozent der Befragten finden den Antrag in Teilen unverst\"andlich. Dabei wurde Formblatt 3 am st\"arksten kritisiert.\grqq{} Quelle: Einfacher zum Studierenden-BAf\"oG, S. 5~\cite{einfacher2010}.}
-    \item \textbf{Einkommensnachweise (Eltern):} Werden generiert, wenn FB 3 vorhanden ist (meist 2 St\"uck, Mutter/Vater). Faktor 1.3.
-    \item \textbf{Mietbescheinigung (Wohnnachweis):} Wird generiert, wenn \texttt{Application.housing\_type} != 'Eltern'. Faktor 0.8.
-\end{itemize}
-
-\begin{longtable}{@{}p{3.3cm}p{2.2cm}p{2.5cm}p{4cm}p{5cm}@{}}
+Die Aktivitätsdauern der Sachbearbeitung wurden zur Parametrisierung in stochastische Verteilungen überführt. Manuelle Tätigkeiten werden durch Normalverteilungen modelliert (mit plausiblen Standardabweichungen \(\sigma\) sowie angegebenen Minimal- und Maximalwerten), systemseitige Aktivitäten durch Uniformverteilungen und Wartezeiten durch Exponentialverteilungen.
+\\
+\small
+\setlength{\LTpre}{0pt}
+\setlength{\LTpost}{0pt}
+\begin{longtable}{@{} >{\raggedright\arraybackslash}p{0.18\textwidth}
+          >{\raggedright\arraybackslash}p{0.12\textwidth}
+          >{\raggedright\arraybackslash}p{0.15\textwidth}
+          >{\raggedright\arraybackslash}p{0.22\textwidth}
+          >{\raggedright\arraybackslash}p{0.33\textwidth} @{}}
 \toprule
 Aktivit\"at & Ressource & Verteilung & Parameter & Begr\"undung \\
 \midrule
-Send Application Mail & System & Uniform & 1--3 min & Automatisches Generieren + Versand (optimiert f\"ur digitale Prozesse). \\
-Receive Application & Clerk & Normal & $\mu=13$, $\sigma=4$, min 5, max 25 min & Entspricht Anlegen der Papierakte (Tab. 22). \\
-Request Parent Data & System & Uniform & 0{,}5--2 min & Automatischer API-Abruf der Elterndaten (kein manueller Aufwand). \\
-Receive Parent Data & System & Exponential & Mittel 10{,}080 min, min 1{,}440, max 20{,}160 & Wartezeit auf Elterndaten (1--14 Tage). \\
-Review Document & Clerk & Normal & $\mu=13$, $\sigma=4$, min 5, max 25 min & Vollst\"andigkeitspr\"ufung (Tab. 22). \\
-Request Missing Documents & Clerk & Normal & $\mu=12$, $\sigma=3$, min 5, max 25 min & Fehlende Daten oder Informationen einholen (Tab. 22). \\
-Receive Missing Documents & System & Exponential & Mittel 10{,}080 min, min 1{,}440, max 20{,}160 & Wartezeit auf fehlende Dokumente (1--14 Tage). \\
-Assess Application & Clerk & Normal & $\mu=15$, $\sigma=4$, min 5, max 30 min & H\"alfte von Berechnungen/Bewertungen durchf\"uhren (Tab. 22). \\
-Calculate Claim & Clerk & Normal & $\mu=20$, $\sigma=5$, min 10, max 40 min & H\"alfte von Berechnungen/Bewertungen inkl. Ergebnisse pr\"ufen und korrigieren (Tab. 22). \\
-Send Notification & Clerk & Normal & $\mu=10$, $\sigma=3$, min 5, max 20 min & Bescheid aufbereiten und versenden (Tab. 22). \\
+\endhead
+Request Parent Data & System & Uniform & 0{,}5--2 min & Automatische Mail an Eltern \\
+Receive Parent Data & System & Exponential & Mittel 10{,}080 min, min 1{,}440, max 20{,}160 & Wartezeit auf Elterndaten\\
+Send Application Mail & System & Uniform & 1--3 min & Automatisches Generieren + Versand \\
+Receive Application & Clerk & Normal & $\mu=13$, $\sigma=4$, min 5, max 25 min & Entspricht Anlegen der Papierakte \\
+Review Document & Clerk & Normal & $\mu=13$, $\sigma=4$, min 5, max 25 min & Vollst\"andigkeitspr\"ufung \\
+Request Missing Documents & Clerk & Normal & $\mu=12$, $\sigma=3$, min 5, max 25 min & Fehlende Daten einholen \\
+Receive Missing Documents & System & Exponential & Mittel 10{,}080 min, min 1{,}440, max 20{,}160 & Wartezeit auf fehlende Dokumente \\
+Assess Application & Clerk & Normal & $\mu=15$, $\sigma=4$, min 5, max 30 min & Berechnungen/Bewertungen durchf\"uhren \\
+Calculate Claim & Clerk & Normal & $\mu=20$, $\sigma=5$, min 10, max 40 min & Ergebnisse pr\"ufen und korrigieren \\
+Send Notification & Clerk & Normal & $\mu=10$, $\sigma=3$, min 5, max 20 min & Bescheid aufbereiten und versenden \\
 Send Rejection & Clerk & Normal & $\mu=10$, $\sigma=3$, min 5, max 20 min & Analog Notification. \\
 \bottomrule
 \end{longtable}
+\normalsize
+
+\subsection{Dokumenttypen und Komplexit\"atsfaktoren}
+F\"ur eine detaillierte Simulation k\"onnen die Bearbeitungszeiten basierend auf dem Dokumenttyp skaliert werden. Die Faktoren beruhen auf Annahmen.
+
+\begin{center}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{} >{\raggedright\arraybackslash}p{0.38\textwidth}
+       >{\raggedright\arraybackslash}p{0.30\textwidth}
+       >{\raggedright\arraybackslash}p{0.22\textwidth} @{}}
+\toprule
+Dokument & Bedingung & Komplexitäts\-faktor \\
+\midrule
+Formblatt 1 (Antrag) & immer & 1.0 \\[2pt]
+Immatrikulations\-bescheinigung & immer & 0.5 \\[2pt]
+Formblatt 3 (Einkommen Eltern) & falls {\ttfamily Application.\allowbreak is\_parent\_\allowbreak independent = FALSE} & 1.5 \\[2pt]
+Einkommens\-nachweise (Eltern) & falls Formblatt 3 vorhanden (i.d.R. 2 Stück) & 1.3 \\[2pt]
+Mietbescheinigung (Wohnnachweis) & falls {\ttfamily Application.\allowbreak housing\_type \(\neq\) 'Eltern'} & 0.8 \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{center}
 
 \section{Ressourcen}
 \subsection{System}
@@ -119,39 +129,29 @@ Send Rejection & Clerk & Normal & $\mu=10$, $\sigma=3$, min 5, max 20 min & Anal
 
 \subsection{Clerk (Sachbearbeitung)}
 \begin{itemize}
-  \item Anzahl: "Es gibt insgesamt sieben Abschnitte, davon fünf in der Inlandsförderung mit 32 Sachbearbeiterinnen \cite{bewilligung2012}"
+  \item Anzahl: Inlandsförderung mit 32 Sachbearbeitern \cite{bewilligung2012}
   \item Verfügbarkeit: Mo--Fr 07:30--16:00.
 \end{itemize}
 
-\section{Geplante Prozessabweichungen (Deviations)}
-Um die F\"ahigkeiten des Conformance Checkings zu validieren, werden gezielt Abweichungen in den Simulationsdaten erzeugt, die vom Standardprozess (Happy Path) abweichen.
+\section{Geplante Deviations}
+Um einen Conformance Check zu demonstrieren, werden gezielt Abweichungen in den Simulationsdaten erzeugt, die vom Standardprozess (Happy Path) abweichen.
 
-\begin{itemize}
-    \item \textbf{Review Documents Skip (Missing Activity):}
-    \begin{itemize}
-        \item \textbf{Szenario:} Bei 10\% der F\"alle wird der Schritt \glqq Review Document\grqq{} \"ubersprungen. Der Prozess l\"auft direkt weiter zu \glqq Assess Application\grqq{}.
-        \item \textbf{Bedeutung:} Dies simuliert ein \"Uberspringen der formalen Qualit\"atskontrolle. Im Conformance Check muss dies als \glqq Missing Activity\grqq{} erkannt werden.
-    \end{itemize}
+\subsection{Switched Activities}
+\textbf{Szenario:} Bei 10\,\% der Fälle wird der Schritt \glqq Assess Application\grqq{} mit \glqq Calculate Claim\grqq{} in der Reihenfolge vertauscht. \\\\
+\textbf{Bedeutung:} Dies simuliert eine Abweichung der Prozessreihenfolge. Im Conformance Check muss dies als \textbf{Sequence Violation} (Reihenfolgeverletzung) erkannt werden.
 
-    \item \textbf{Direkte Ablehnung (Shortened Path):}
-    \begin{itemize}
-        \item \textbf{Szenario:} Bei 5\% der F\"alle bricht der Prozess nach \glqq Review Document\grqq{} (oder direkt bei Eingang) sofort ab und springt zu einem End-Event (z.B. \glqq Application Rejected\grqq{}), ohne die weiteren Pr\"ufungsschritte (\glqq Assess\grqq{}, \glqq Calculate\grqq{}) zu durchlaufen.
-        \item \textbf{Bedeutung:} Simuliert eine sofortige Ablehnung (z.B. wegen offensichtlicher Formfehler), die im Standardmodell so nicht vorgesehen ist (Abk\"urzung). Im Conformance Check als \glqq Shortened Path\grqq{} oder unerlaubte Kante erkennbar.
-    \end{itemize}
+\subsection{Direkte Ablehnung (Shortened Path)}
+\textbf{Szenario:} Bei 5\,\% der Fälle bricht der Prozess nach \glqq Review Documents\grqq{} (oder direkt bei Eingang) sofort ab und springt zu einem End-Event (z.\,B. \glqq Application Rejected\grqq{}), ohne die weiteren Prüfungsschritte (\glqq Assess\grqq{}, \glqq Calculate\grqq{}) zu durchlaufen. \\\\
+\textbf{Bedeutung:} Simuliert eine sofortige Ablehnung (z.\,B. wegen offensichtlicher Formfehler), die im Standardmodell so nicht vorgesehen ist. Im Conformance Check erkennbar als \textbf{Skipped Activities} oder \textbf{unerlaubter Pfad} (fehlende Kante im Modell).
 
-    \item \textbf{Timeout/Ablehnung wegen Fristablauf:}
-    \begin{itemize}
-        \item \textbf{Szenario:} Bei 4\% springt der Prozess nach \glqq Request Missing Documents\grqq{} → nach Wartezeit >30 Tage direkt zu \glqq Send Rejection\grqq{} (ohne Assess/Calculate)
-        \item \textbf{Bedeutung:} Fehlende Nachreichung führt zu automatischer Ablehnung
-        \item \textbf{Conformance-Wert:} Konditionaler Abbruch
-    \end{itemize}
-\end{itemize}
+\subsection{Ablehnung wegen Fristablauf}
+\textbf{Szenario:} Bei 4\,\% springt der Prozess nach \glqq Request Missing Documents\grqq{} -- nach einer Wartezeit >30 Tage -- direkt zu \glqq Send Rejection\grqq{} (ohne Assess/Calculate). \\\\
+\textbf{Bedeutung:} Fehlende Nachreichung führt zu automatischer Ablehnung. Da diese Timeout-Regel nicht im Modell vorgesehen ist, führt dies zu \textbf{Skipped Activities}.
 
 \section{Simulationsempfehlungen}
 \begin{itemize}
-  \item KPIs: Cycle Time je Antrag, Auslastung Sachbearbeiter, Wartezeiten pro Queue, Kosten pro Antrag, Bewilligungsquote.
+  \item KPIs: Cycle Time je Antrag, Auslastung Sachbearbeiter, Wartezeiten pro Queue, Bewilligungsquote.
   \item Experimente: Sensitivit\"at auf Dokumentvollst\"andigkeit (Gateway), Variation Receive-Document-Mittelwert, Personalkapazit\"at (z.B. 10--16 FTE), saisonale Peaks vs. Normalsemester.
-  \item Setup (Prosimos): Simulation\_time 86{,}400; warmup 0; replications 1; seed 42 (aus Vorgabedatei).
 \end{itemize}
 
 \bibliographystyle{apalike}
