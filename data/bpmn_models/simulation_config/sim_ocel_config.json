@@ -3,6 +3,12 @@
         "num_cases": 9800,
         "start_date": "2024-09-15T00:00:00",
         "random_seed": 42,
+        "target_log_days": 40,
+        "tail_buffer_days": 5,
+        "max_review_rounds": 1,
+        "include_start_event": false,
+        "include_end_event": false,
+        "enforce_working_hours": true,
         "description": "BAföG OCEL Simulation - Hamburg Wintersemester 2024/2025"
     },
     "interarrival": {
