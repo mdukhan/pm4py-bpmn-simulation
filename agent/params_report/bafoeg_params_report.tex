@@ -12,7 +12,7 @@
 \usepackage{graphicx} 
 \usepackage{rotating}
 
-\title{Parametrisierung f\"ur die BAf\"oG-OCEL-Simulation \\[1ex] \large Business Process Management (WS 25/26) \\ Group 10}
+\title{Parametrisierung für die BAföG-OCEL-Simulation \\[1ex] \large Business Process Management (WS 25/26) \\ Group 10}
 \author{Alina Thoden \\ Haya Edris \\ Mansour Dukhan \\ David Derr \\ Büsra Bugrahan \\ Jan Gödicke}
 \date{\today}
 
@@ -29,10 +29,10 @@ Der Fokus liegt auf der Bearbeitung von Erstanträgen, die ausschließlich digit
 \\\\
 Startpunkt ist „Application started", also der Zeitpunkt des Dateneinggangs im System. Vorarbeiten des Studierenden bleiben unberücksichtigt, da sie die Amtsdurchlaufzeit nicht beeinflussen.
 \subsection{Volumenannahmen}
-Wir simulieren ein High-Load-Szenario, bei dem das gesamte Antragsvolumen (9.800 bei Start des Wintersemesters) als Erstantr\"age behandelt wird, um die Belastbarkeit des Systems unter maximaler Komplexit\"at zu pr\"ufen.
+Wir simulieren ein High-Load-Szenario, bei dem das gesamte Antragsvolumen (9.800 bei Start des Wintersemesters) als Erstanträge behandelt wird, um die Belastbarkeit des Systems unter maximaler Komplexität zu prüfen.
 
 \subsection{Modellierungsansatz}
-Neues BPMN ist st\"arker datengetrieben als die initiale Version \autoref{fig:bafoeg_ocel}.
+Neues BPMN ist stärker datengetrieben als die initialen Version \autoref{fig:bafoeg_ocel}.
 
 \begin{sidewaysfigure}
     \centering
@@ -48,11 +48,13 @@ Die Lastspitzen orientieren sich am Wintersemester-Start. Nach ~\cite{sh2024} ge
 \toprule
 Zeitfenster & Wochentage & Verteilung & Parameter & Annahme \\
 \midrule
-08:00--16:00 & Mo--Fr & Exponential & Mittel 120 min & Hauptgesch\"aftszeit, moderater Strom digitaler Eing\"ange\\
+08:00--16:00 & Mo--Fr & Exponential & Mittel 120 min & Hauptgeschäftszeit, moderater Strom digitaler Eingänge\\
 16:00--21:00 & Mo--Fr & Exponential & Mittel 30 min & Feierabend-Peak bei Online-Abgabe. \\
-21:00--23:59 & Mo--Fr & Exponential & Mittel 180 min & Sp\"atabgabe, geringere Dichte. \\
-Ganztags & Sa--So & Exponential & Mittel 300 min & Wochenende, geringere Interarrival (Online-only). \\
+21:00--23:59 & Mo--Fr & Exponential & Mittel 180 min & Spätabgabe, geringere Dichte. \\
+Ganztags & Sa--So & Exponential & Mittel 300 min & Wochenende, geringere Interarrival-Dichte (Online-only). \\
 \bottomrule
+\\[1ex]
+\caption{Interarrival-Zeiten für die Simulation} \label{tab:interarrival} \\
 \end{longtable}
 
 \section{Gateways}
@@ -65,11 +67,11 @@ Nach Fachliteratur sind nur 1--2\% der Papier-Erstanträge vollständig~\cite{ei
 \subsection{Eligibility Decision?}
 Nach~\cite{bewilligung2012} liegt der Anteil nicht bewilligter Anträge bei 16\%. Die Pfadwahrscheinlichkeiten betragen somit 84\% für bewilligt und 16\% für abgelehnt. Dieses Gateway wird durch das Attribut \texttt{Application.status} (``Approved'' vs. ``Rejected'') gesteuert.
 
-\section{Aktivit\"atsdauern}
+\section{Aktivitätsdauern}
 Zur Ableitung der Aktivitätsdauern wurden die Standardzeiten aus Tabelle 22 („Durchschnittliche Standardzeiten der Antragsbearbeitung im Studierendenwerk Hamburg für die Inlandsförderung ")~\cite{bewilligung2012} herangezogen. Für das Szenario Erstantrag ergibt sich daraus eine Gesamtsumme von 83 Minuten. Die Anteile der Einzelaktivitäten wurden proportional zu den in Tabelle 22 angegebenen Standardzeiten bestimmt und auf die nachfolgend aufgeführten Aktivitätsgruppen verteilt:
 
   \begin{itemize}
-      \item \textbf{Receive Application:} enstpricht Anlegen der Papierakte \(\approx 13\,\text{min}\)
+      \item \textbf{Receive Application:} entspricht Anlegen der Papierakte \(\approx 13\,\text{min}\)
       \item \textbf{Review:} entspricht Vollständigkeitsprüfung \(\approx 13\,\text{min}\).
       \item \textbf{Request Missing Data}  entspricht fehlende Daten oder Informationen einholen \(\approx 12\,\text{min}\).
       \item \textbf{Assess:} entspricht Hälfte der Zeit von Berechnungen/Bewertungen durchführen \(\approx 15\,\text{min}\).
@@ -88,28 +90,33 @@ Die Aktivitätsdauern der Sachbearbeitung wurden zur Parametrisierung in stochas
           >{\raggedright\arraybackslash}p{0.22\textwidth}
           >{\raggedright\arraybackslash}p{0.33\textwidth} @{}}
 \toprule
-Aktivit\"at & Ressource & Verteilung & Parameter & Begr\"undung \\
+Aktivität & Ressource & Verteilung & Parameter & Begründung \\
 \midrule
 \endhead
+Application started & System & - & 0 min & Start-Event (Dateneingang) \\
 Request Parent Data & System & Uniform & 0{,}5--2 min & Automatische Mail an Eltern \\
 Receive Parent Data & System & Exponential & Mittel 10{,}080 min, min 1{,}440, max 20{,}160 & Wartezeit auf Elterndaten\\
 Send Application Mail & System & Uniform & 1--3 min & Automatisches Generieren + Versand \\
 Receive Application & Clerk & Normal & $\mu=13$, $\sigma=4$, min 5, max 25 min & Entspricht Anlegen der Papierakte \\
-Review Document & Clerk & Normal & $\mu=13$, $\sigma=4$, min 5, max 25 min & Vollst\"andigkeitspr\"ufung \\
-Request Missing Documents & Clerk & Normal & $\mu=12$, $\sigma=3$, min 5, max 25 min & Fehlende Daten einholen \\
+Review Documents & Clerk & Normal & $\mu=13$, $\sigma=4$, min 5, max 25 min & Vollständigkeitsprüfung \\
+Request Missing Documents & Clerk & Normal & $\mu=12$, $\sigma=3$, min 5, max 25 min & Fehlende Daten oder Informationen einholen \\
 Receive Missing Documents & System & Exponential & Mittel 10{,}080 min, min 1{,}440, max 20{,}160 & Wartezeit auf fehlende Dokumente \\
-Assess Application & Clerk & Normal & $\mu=15$, $\sigma=4$, min 5, max 30 min & Berechnungen/Bewertungen durchf\"uhren \\
-Calculate Claim & Clerk & Normal & $\mu=20$, $\sigma=5$, min 10, max 40 min & Ergebnisse pr\"ufen und korrigieren \\
-Send Notification & Clerk & Normal & $\mu=10$, $\sigma=3$, min 5, max 20 min & Bescheid aufbereiten und versenden \\
+Assess Application & Clerk & Normal & $\mu=15$, $\sigma=4$, min 5, max 30 min & Hälfte der Zeit von Berechnungen/Bewertungen \\
+Calculate Claim & Clerk & Normal & $\mu=20$, $\sigma=5$, min 10, max 40 min & Hälfte Berechnungen + Ergebnisse prüfen \\
+Send Notification & Clerk & Normal & $\mu=10$, $\sigma=3$, min 5, max 20 min & Aufbereiten, Versenden \\
 Send Rejection & Clerk & Normal & $\mu=10$, $\sigma=3$, min 5, max 20 min & Analog Notification. \\
+Application handled & System & - & 0 min & End-Event (Technischer Abschluss) \\
 \bottomrule
+\\[1ex]
+\caption{Verteilung der Aktivitätsdauern} \label{tab:activities} \\
 \end{longtable}
 \normalsize
 
-\subsection{Dokumenttypen und Komplexit\"atsfaktoren}
-F\"ur eine detaillierte Simulation k\"onnen die Bearbeitungszeiten basierend auf dem Dokumenttyp skaliert werden. Die Faktoren beruhen auf Annahmen.
+\subsection{Dokumenttypen und Komplexitätsfaktoren}
+Für eine detaillierte Simulation können die Bearbeitungszeiten basierend auf dem Dokumenttyp skaliert werden. Die Faktoren beruhen auf Annahmen.
 
-\begin{center}
+\begin{table}[ht]
+\centering
 \small
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{} >{\raggedright\arraybackslash}p{0.38\textwidth}
@@ -125,13 +132,66 @@ Einkommens\-nachweise (Eltern) & falls Formblatt 3 vorhanden (i.d.R. 2 Stück) &
 Mietbescheinigung (Wohnnachweis) & falls {\ttfamily Application.\allowbreak housing\_type \(\neq\) 'Eltern'} & 0.8 \\
 \bottomrule
 \end{tabular}
+\vspace{1ex}
+\caption{Dokumenttypen und Komplexitätsfaktoren}
+\label{tab:doctypes}
 \normalsize
-\end{center}
+\end{table}
+
+\subsection{Object-Centric Logic \& Mapping}
+
+\subsubsection{Object-to-Event Mapping}
+Um den Lebenszyklus des Antrags und der einzelnen Dokumente getrennt voneinander, aber synchronisiert abzubilden, wird folgendes Mapping-Schema angewendet:
+
+\begin{itemize}
+    \item \textbf{Leading Object:} Das Objekt \texttt{Application} wird mit \textbf{allen} Aktivitäten verknüpft, um den durchgängigen Prozessfluss zu gewährleisten.
+    \item \textbf{Secondary Object:} Das Objekt \texttt{Document} wird \textbf{exklusiv} mit Aktivitäten verknüpft, die eine physische Bearbeitung oder Zustandsänderung eines Dokuments darstellen (z.\,B. \textit{Request, Receive, Review}).
+\end{itemize}
+
+Dies ermöglicht im Process Mining die Analyse von 1:n-Beziehungen (ein Antrag hat \(n\) Dokumente, die sich unterschiedlich verhalten).
+\\
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{} >{\raggedright\arraybackslash}p{0.30\textwidth}
+       >{\raggedright\arraybackslash}p{0.30\textwidth}
+       >{\raggedright\arraybackslash}p{0.30\textwidth} @{}}
+\toprule
+Aktivität & Verknüpfte Objekte & Begründung \\
+\midrule
+\endhead
+Application started & Application & Initialisierung des Cases \\
+Request Parent Data & Application, \textbf{Document} & Erzeugung/Anforderung der Eltern-Objekte \\
+Receive Parent Data & Application, \textbf{Document} & Eingang der Eltern-Unterlagen \\
+Send Application Mail & Application & System-Notifikation an das BAföG-Amt Hamburg über Antragseingang \\
+Receive Application & Application, \textbf{Document} & Eingang der Basis-Dokumente \\
+Review Documents & Application, \textbf{Document} & Inhaltliche Prüfung pro Einzel-Dokument \\
+Request Missing Documents & Application, \textbf{Document} & Nachforderung fehlender Dokumente \\
+Receive Missing Documents & Application, \textbf{Document} & Eingang der nachgereichten Dokumente \\
+Assess Application & Application & Prüfung des Gesamtantrags \\
+Calculate Claim & Application & Berechnung des BAföG-Satzes \\
+Send Notification & Application & Positiver Bescheid (Bewilligung) \\
+Send Rejection & Application & Negativer Bescheid (Ablehnung) \\
+Application handled & Application & Technischer Abschluss des Cases \\
+\bottomrule
+\\[1ex]
+\caption{Object-to-Event Mapping} \label{tab:mapping} \\
+\end{longtable}
+\normalsize
+
+\subsubsection{Synchronisations-Logik und Dokumentenkategorien}
+Um die Modellkomplexität zu reduzieren, werden Elternunterlagen nicht in individuelle Rollen (Mutter/Vater) aufgeteilt, sondern als ein aggregiertes Nachweisobjekt behandelt. Die OCPM-Logik greift hier durch die Synchronisation unterschiedlicher Dokumentenkategorien:
+
+\begin{enumerate}
+    \item \textbf{Differenzierte Wartezeiten:} Das Dokument der Kategorie \glqq Parent\grqq{} (z.\,B. Einkommensnachweis) erhält in der Simulation eine signifikant längere Wartezeit (Exponentialverteilung, \(\mu \approx 7\) Tage) als Dokumente der Kategorie \glqq Student\grqq{} (\(\mu \approx 2\) Tage).
+    \item \textbf{Synchronisation am Gateway:} Der Prozessschritt \glqq Assess Application\grqq{} fungiert als Synchronisationspunkt. Er darf erst starten, wenn \textbf{alle} verknüpften Dokumente (sowohl Student als auch Eltern) den Status \glqq Received\grqq{} erreicht haben.
+\end{enumerate}
+
+Dies demonstriert den Core-Benefit von Object-Centric Process Mining: Die Analyse zeigt, dass der Gesamtprozess oft durch ein einzelnes, komplexes Objekt (hier: Elternnachweis) blockiert wird, während andere Objekte (z.\,B. Immatrikulationsbescheinigung) bereits vorliegen (Wartezeiten-Paradoxon).
 
 \section{Ressourcen}
 \subsection{System}
 \begin{itemize}
-  \item 24/7 verf\"ugbar, Kapazit\"at hoch (9999)
+  \item 24/7 verfügbar, Kapazität hoch (9999)
   \item Verfügbarkeit: 00:00--23:59, alle Tage.
 \end{itemize}
 
@@ -159,7 +219,7 @@ Um einen Conformance Check zu demonstrieren, werden gezielt Abweichungen in den 
 \section{Simulationsempfehlungen}
 \begin{itemize}
   \item KPIs: Cycle Time je Antrag, Auslastung Sachbearbeiter, Wartezeiten pro Queue, Bewilligungsquote.
-  \item Experimente: Sensitivit\"at auf Dokumentvollst\"andigkeit (Gateway), Variation Receive-Document-Mittelwert, Personalkapazit\"at (z.B. 10--16 FTE), saisonale Peaks vs. Normalsemester.
+  \item Experimente: Sensitivität auf Dokumentvollständigkeit (Gateway), Variation Receive-Document-Mittelwert, Personalkapazität (z.B. 10--16 FTE), saisonale Peaks vs. Normalsemester.
 \end{itemize}
 
 \newpage
