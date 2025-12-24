@@ -5,9 +5,9 @@
         "random_seed": 42,
         "target_log_days": 40,
         "tail_buffer_days": 5,
-        "max_review_rounds": 1,
-        "include_start_event": false,
-        "include_end_event": false,
+        "max_review_rounds": 5,
+        "include_start_event": true,
+        "include_end_event": true,
         "enforce_working_hours": true,
         "description": "BAföG OCEL Simulation - Hamburg Wintersemester 2024/2025"
     },
@@ -76,14 +76,14 @@
     },
     "gateways": {
         "eligibility_decision": {
-            "approved": 0.80,
-            "rejected": 0.20,
-            "description": "Bewilligungsquote basierend auf Projektbericht 2012 (Tab. 22/23)"
+            "approved": 0.84,
+            "rejected": 0.16,
+            "description": "Bewilligungsquote 84% basierend auf Projektbericht 2012 (Tab. 22/23)"
         },
         "documents_missing": {
-            "missing": 0.60,
-            "complete": 0.40,
-            "description": "Erstanträge haben höheres Risiko unvollständiger Unterlagen"
+            "missing": 0.70,
+            "complete": 0.30,
+            "description": "Erstanträge: 70% unvollständig (LaTeX Section 3.2)"
         },
         "parent_data_required": {
             "required": 0.80,
@@ -100,11 +100,13 @@
             "description": "Automatisches Generieren + Versand"
         },
         "Receive Application": {
-            "resource": "System",
-            "distribution": "uniform",
-            "min_minutes": 1,
-            "max_minutes": 5,
-            "description": "Automatischer Antragseingang"
+            "resource": "Clerk",
+            "distribution": "normal",
+            "mean_minutes": 13,
+            "std_minutes": 4,
+            "min_minutes": 5,
+            "max_minutes": 25,
+            "description": "Anlegen der Papierakte (LaTeX Tab. 4)"
         },
         "Request Parent Data": {
             "resource": "System",
@@ -124,64 +126,64 @@
         "Request Missing Documents": {
             "resource": "Clerk",
             "distribution": "normal",
-            "mean_minutes": 14,
-            "std_minutes": 5,
+            "mean_minutes": 12,
+            "std_minutes": 3,
             "min_minutes": 5,
-            "max_minutes": 30,
-            "description": "Fehlende Unterlagen anfordern (Tab. 22)"
+            "max_minutes": 25,
+            "description": "Fehlende Daten/Informationen einholen (LaTeX Tab. 4)"
         },
         "Receive Missing Documents": {
             "resource": "System",
             "distribution": "exponential",
             "mean_minutes": 10080,
             "min_minutes": 1440,
-            "max_minutes": 20160,
-            "description": "Wartezeit auf fehlende Dokumente (1-14 Tage)"
+            "max_minutes": 60480,
+            "description": "Wartezeit auf fehlende Dokumente (1-42 Tage, für Timeout-Deviation)"
         },
-        "Review Document": {
+        "Review Documents": {
             "resource": "Clerk",
             "distribution": "normal",
-            "mean_minutes": 25,
-            "std_minutes": 7,
-            "min_minutes": 10,
-            "max_minutes": 60,
-            "description": "30% von 83 min Gesamtzeit (Tab. 22)"
+            "mean_minutes": 13,
+            "std_minutes": 4,
+            "min_minutes": 5,
+            "max_minutes": 25,
+            "description": "Vollständigkeitsprüfung (LaTeX Tab. 4)"
         },
         "Assess Application": {
             "resource": "Clerk",
             "distribution": "normal",
-            "mean_minutes": 25,
-            "std_minutes": 7,
-            "min_minutes": 10,
-            "max_minutes": 50,
-            "description": "Prüfung, Besprechungen, Klärungen"
+            "mean_minutes": 15,
+            "std_minutes": 4,
+            "min_minutes": 5,
+            "max_minutes": 30,
+            "description": "Hälfte der Berechnungen/Bewertungen (LaTeX Tab. 4)"
         },
         "Calculate Claim": {
             "resource": "Clerk",
             "distribution": "normal",
-            "mean_minutes": 21,
-            "std_minutes": 6,
+            "mean_minutes": 20,
+            "std_minutes": 5,
             "min_minutes": 10,
-            "max_minutes": 45,
-            "description": "25% von 83 min (Tab. 22)"
+            "max_minutes": 40,
+            "description": "Hälfte Berechnungen + Ergebnisse prüfen (LaTeX Tab. 4)"
         },
         "Send Notification": {
             "resource": "Clerk",
             "distribution": "normal",
-            "mean_minutes": 12,
+            "mean_minutes": 10,
             "std_minutes": 3,
             "min_minutes": 5,
-            "max_minutes": 25,
-            "description": "Bescheid erstellen und versenden"
+            "max_minutes": 20,
+            "description": "Aufbereiten, Versenden (LaTeX Tab. 4)"
         },
         "Send Rejection": {
             "resource": "Clerk",
             "distribution": "normal",
-            "mean_minutes": 12,
+            "mean_minutes": 10,
             "std_minutes": 3,
             "min_minutes": 5,
-            "max_minutes": 25,
-            "description": "Analog Notification"
+            "max_minutes": 20,
+            "description": "Analog Notification (LaTeX Tab. 4)"
         }
     },
     "resources": {
@@ -192,7 +194,7 @@
             "description": "Automatische Systemtasks"
         },
         "Clerk": {
-            "capacity": 14,
+            "capacity": 32,
             "availability": {
                 "days": [
                     "Mon",
@@ -205,17 +207,23 @@
                 "end_hour": 16.0
             },
             "cost_per_hour_eur": 35,
-            "description": "Sachbearbeiter (14 FTE nach Berechnung)"
+            "description": "Sachbearbeiter Inlandsförderung (32 FTE, LaTeX Section 5.2)"
         }
     },
     "deviations": {
-        "review_skip": {
+        "activity_switch": {
             "probability": 0.10,
-            "description": "10% der Fälle überspringen Review Document"
+            "activities": ["Assess Application", "Calculate Claim"],
+            "description": "10% Switched: Calculate vor Assess (Sequence Violation, LaTeX Section 6.1)"
         },
         "direct_rejection": {
             "probability": 0.05,
-            "description": "5% direkte Ablehnung nach Review (Shortened Path)"
+            "description": "5% Shortened Path: Direkte Ablehnung nach Review (LaTeX Section 6.2)"
+        },
+        "document_timeout": {
+            "probability": 0.04,
+            "timeout_days": 30,
+            "description": "4% Timeout: Ablehnung nach >30 Tagen ohne Dokumente (LaTeX Section 6.3)"
         }
     },
     "document_types": {
