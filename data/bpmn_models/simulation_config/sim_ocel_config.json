@@ -1,9 +1,9 @@
 {
     "simulation": {
         "num_cases": 9800,
-        "start_date": "2024-09-15T00:00:00",
+        "start_date": "2024-09-01T00:00:00",
         "random_seed": 42,
-        "target_log_days": 40,
+        "target_log_days": 150,
         "tail_buffer_days": 5,
         "max_review_rounds": 5,
         "include_start_event": true,
@@ -25,8 +25,8 @@
                 "Fri"
             ],
             "distribution": "exponential",
-            "mean_minutes": 120,
-            "description": "Hauptgeschäftszeit, moderater Strom digitaler Eingänge"
+            "mean_minutes": 1.5,
+            "description": "Semesterstart Peak: Hauptgeschäftszeit, hoher digitaler Eingang"
         },
         "weekday_16_21": {
             "hours": [
@@ -41,8 +41,8 @@
                 "Fri"
             ],
             "distribution": "exponential",
-            "mean_minutes": 30,
-            "description": "Feierabend-Peak bei Online-Abgabe"
+            "mean_minutes": 2.7,
+            "description": "Semesterstart Peak: Nach Vorlesungen, sehr hohe Online-Abgabe"
         },
         "weekday_21_24": {
             "hours": [
@@ -57,8 +57,8 @@
                 "Fri"
             ],
             "distribution": "exponential",
-            "mean_minutes": 180,
-            "description": "Spätabgabe, geringere Dichte"
+            "mean_minutes": 8.1,
+            "description": "Semesterstart: Spätabgabe, moderate Dichte"
         },
         "weekend": {
             "hours": [
@@ -70,8 +70,8 @@
                 "Sun"
             ],
             "distribution": "exponential",
-            "mean_minutes": 300,
-            "description": "Wochenende, geringere Interarrival"
+            "mean_minutes": 10.8,
+            "description": "Semesterstart: Wochenende, reduzierte aber signifikante Rate"
         }
     },
     "gateways": {
@@ -89,6 +89,11 @@
             "required": 0.80,
             "not_required": 0.20,
             "description": "Ca. 18% elternunabhängig (Statistik Bayern 2022)"
+        },
+        "housing_situation": {
+            "Alleine": 0.5,
+            "Eltern": 0.5,
+            "description": "Wohnsituation: 70% wohnen nicht bei Eltern (Sozialerhebung)"
         }
     },
     "activities": {
@@ -117,11 +122,12 @@
         },
         "Receive Parent Data": {
             "resource": "System",
-            "distribution": "exponential",
+            "distribution": "normal",
             "mean_minutes": 10080,
+            "std_minutes": 3600,
             "min_minutes": 1440,
-            "max_minutes": 20160,
-            "description": "Wartezeit auf Elterndaten (1-14 Tage)"
+            "max_minutes": 43200,
+            "description": "Wartezeit auf Elterndaten (Normal-verteilt, μ=7d, σ=2.5d)"
         },
         "Request Missing Documents": {
             "resource": "Clerk",
@@ -134,20 +140,21 @@
         },
         "Receive Missing Documents": {
             "resource": "System",
-            "distribution": "exponential",
-            "mean_minutes": 10080,
+            "distribution": "normal",
+            "mean_minutes": 20160,
+            "std_minutes": 5760,
             "min_minutes": 1440,
-            "max_minutes": 60480,
-            "description": "Wartezeit auf fehlende Dokumente (1-42 Tage, für Timeout-Deviation)"
+            "max_minutes": 43200,
+            "description": "Wartezeit auf fehlende Dokumente (Normal-verteilt, μ=14d, σ=4d, 1-30 Tage)"
         },
         "Review Documents": {
             "resource": "Clerk",
             "distribution": "normal",
-            "mean_minutes": 13,
-            "std_minutes": 4,
-            "min_minutes": 5,
-            "max_minutes": 25,
-            "description": "Vollständigkeitsprüfung (LaTeX Tab. 4)"
+            "mean_minutes": 5,
+            "std_minutes": 2,
+            "min_minutes": 2,
+            "max_minutes": 15,
+            "description": "Zeit pro Dokument"
         },
         "Assess Application": {
             "resource": "Clerk",
@@ -212,12 +219,19 @@
     },
     "deviations": {
         "activity_switch": {
-            "probability": 0.10,
-            "activities": ["Assess Application", "Calculate Claim"],
+            "probability": 0.01,
+            "activities": [
+                "Assess Application",
+                "Calculate Claim"
+            ],
             "description": "10% Switched: Calculate vor Assess (Sequence Violation, LaTeX Section 6.1)"
         },
+        "blind_approval": {
+            "probability": 0.02,
+            "description": "3% Blind Approval: Genehmigung ohne Prüfung (Compliance Violation)"
+        },
         "direct_rejection": {
-            "probability": 0.05,
+            "probability": 0.03,
             "description": "5% Shortened Path: Direkte Ablehnung nach Review (LaTeX Section 6.2)"
         },
         "document_timeout": {
