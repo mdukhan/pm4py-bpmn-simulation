@@ -252,37 +252,43 @@
             "probability": 0.04,
             "timeout_days": 30,
             "description": "4% Timeout: Ablehnung nach >30 Tagen ohne Dokumente (LaTeX Section 6.3)"
+        },
+        "document_invalid": {
+            "probability": 0.10,
+            "description": "10% Wahrscheinlichkeit, dass ein Dokument beim Review als ungültig/fehlerhaft abgelehnt wird."
         }
     },
     "document_types": {
         "Formblatt 1": {
             "always_generated": true,
+            "system_mandatory": true,
             "complexity_factor": 1.0,
-            "category": "Antrag",
+            "category": "Student",
             "description": "Basis-Dokument, immer vorhanden"
         },
         "Immatrikulationsbescheinigung": {
             "always_generated": true,
             "complexity_factor": 0.5,
-            "category": "Identität",
+            "category": "Student",
             "description": "Kurzprüfung"
         },
         "Formblatt 3": {
             "condition": "is_parent_dependent",
+            "system_mandatory": true,
             "complexity_factor": 1.5,
-            "category": "Einkommen",
+            "category": "Eltern",
             "description": "Elterneinkommen, nur bei elternabhängiger Förderung"
         },
         "Einkommensnachweis Eltern": {
             "condition": "has_formblatt_3",
             "complexity_factor": 1.3,
-            "category": "Einkommen",
+            "category": "Eltern",
             "description": "Meist 2 Stück (Mutter/Vater)"
         },
         "Mietbescheinigung": {
             "condition": "not_living_with_parents",
             "complexity_factor": 0.8,
-            "category": "Wohnen",
+            "category": "Student",
             "description": "Nur wenn nicht bei Eltern wohnend"
         }
     },
