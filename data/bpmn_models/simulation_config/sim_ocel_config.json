@@ -191,6 +191,20 @@
             "min_minutes": 5,
             "max_minutes": 20,
             "description": "Analog Notification (LaTeX Tab. 4)"
+        },
+        "Print Documents": {
+            "resource": "System",
+            "distribution": "uniform",
+            "min_minutes": 2,
+            "max_minutes": 5,
+            "description": "Batch printing of documents"
+        },
+        "Archive Documents": {
+            "resource": "System",
+            "distribution": "uniform",
+            "min_minutes": 2,
+            "max_minutes": 5,
+            "description": "Batch archiving of documents"
         }
     },
     "resources": {
