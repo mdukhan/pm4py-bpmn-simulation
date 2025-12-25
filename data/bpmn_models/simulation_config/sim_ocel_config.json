@@ -5,7 +5,7 @@
         "random_seed": 42,
         "target_log_days": 150,
         "tail_buffer_days": 5,
-        "max_review_rounds": 5,
+        "max_review_rounds": 10,
         "include_start_event": true,
         "include_end_event": true,
         "enforce_working_hours": true,
@@ -193,14 +193,14 @@
             "description": "Analog Notification (LaTeX Tab. 4)"
         },
         "Print Documents": {
-            "resource": "System",
+            "resource": "Clerk",
             "distribution": "uniform",
             "min_minutes": 2,
             "max_minutes": 5,
             "description": "Batch printing of documents"
         },
         "Archive Documents": {
-            "resource": "System",
+            "resource": "Clerk",
             "distribution": "uniform",
             "min_minutes": 2,
             "max_minutes": 5,
