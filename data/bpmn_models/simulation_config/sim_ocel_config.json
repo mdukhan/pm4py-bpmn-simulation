@@ -1,13 +1,13 @@
 {
     "simulation": {
         "num_cases": 9800,
-        "start_date": "2024-09-15T00:00:00",
+        "start_date": "2024-09-01T00:00:00",
         "random_seed": 42,
-        "target_log_days": 40,
+        "target_log_days": 150,
         "tail_buffer_days": 5,
-        "max_review_rounds": 1,
-        "include_start_event": false,
-        "include_end_event": false,
+        "max_review_rounds": 10,
+        "include_start_event": true,
+        "include_end_event": true,
         "enforce_working_hours": true,
         "description": "BAföG OCEL Simulation - Hamburg Wintersemester 2024/2025"
     },
@@ -25,8 +25,8 @@
                 "Fri"
             ],
             "distribution": "exponential",
-            "mean_minutes": 120,
-            "description": "Hauptgeschäftszeit, moderater Strom digitaler Eingänge"
+            "mean_minutes": 1.5,
+            "description": "Semesterstart Peak: Hauptgeschäftszeit, hoher digitaler Eingang"
         },
         "weekday_16_21": {
             "hours": [
@@ -41,8 +41,8 @@
                 "Fri"
             ],
             "distribution": "exponential",
-            "mean_minutes": 30,
-            "description": "Feierabend-Peak bei Online-Abgabe"
+            "mean_minutes": 2.7,
+            "description": "Semesterstart Peak: Nach Vorlesungen, sehr hohe Online-Abgabe"
         },
         "weekday_21_24": {
             "hours": [
@@ -57,8 +57,8 @@
                 "Fri"
             ],
             "distribution": "exponential",
-            "mean_minutes": 180,
-            "description": "Spätabgabe, geringere Dichte"
+            "mean_minutes": 8.1,
+            "description": "Semesterstart: Spätabgabe, moderate Dichte"
         },
         "weekend": {
             "hours": [
@@ -70,25 +70,30 @@
                 "Sun"
             ],
             "distribution": "exponential",
-            "mean_minutes": 300,
-            "description": "Wochenende, geringere Interarrival"
+            "mean_minutes": 10.8,
+            "description": "Semesterstart: Wochenende, reduzierte aber signifikante Rate"
         }
     },
     "gateways": {
         "eligibility_decision": {
-            "approved": 0.80,
-            "rejected": 0.20,
-            "description": "Bewilligungsquote basierend auf Projektbericht 2012 (Tab. 22/23)"
+            "approved": 0.84,
+            "rejected": 0.16,
+            "description": "Bewilligungsquote 84% basierend auf Projektbericht 2012 (Tab. 22/23)"
         },
         "documents_missing": {
-            "missing": 0.60,
-            "complete": 0.40,
-            "description": "Erstanträge haben höheres Risiko unvollständiger Unterlagen"
+            "missing": 0.70,
+            "complete": 0.30,
+            "description": "Erstanträge: 70% unvollständig (LaTeX Section 3.2)"
         },
         "parent_data_required": {
             "required": 0.80,
             "not_required": 0.20,
             "description": "Ca. 18% elternunabhängig (Statistik Bayern 2022)"
+        },
+        "housing_situation": {
+            "Alleine": 0.5,
+            "Eltern": 0.5,
+            "description": "Wohnsituation: 70% wohnen nicht bei Eltern (Sozialerhebung)"
         }
     },
     "activities": {
@@ -100,11 +105,13 @@
             "description": "Automatisches Generieren + Versand"
         },
         "Receive Application": {
-            "resource": "System",
-            "distribution": "uniform",
-            "min_minutes": 1,
-            "max_minutes": 5,
-            "description": "Automatischer Antragseingang"
+            "resource": "Clerk",
+            "distribution": "normal",
+            "mean_minutes": 13,
+            "std_minutes": 4,
+            "min_minutes": 5,
+            "max_minutes": 25,
+            "description": "Anlegen der Papierakte (LaTeX Tab. 4)"
         },
         "Request Parent Data": {
             "resource": "System",
@@ -115,73 +122,89 @@
         },
         "Receive Parent Data": {
             "resource": "System",
-            "distribution": "exponential",
+            "distribution": "normal",
             "mean_minutes": 10080,
+            "std_minutes": 3600,
             "min_minutes": 1440,
-            "max_minutes": 20160,
-            "description": "Wartezeit auf Elterndaten (1-14 Tage)"
+            "max_minutes": 43200,
+            "description": "Wartezeit auf Elterndaten (Normal-verteilt, μ=7d, σ=2.5d)"
         },
         "Request Missing Documents": {
             "resource": "Clerk",
             "distribution": "normal",
-            "mean_minutes": 14,
-            "std_minutes": 5,
+            "mean_minutes": 12,
+            "std_minutes": 3,
             "min_minutes": 5,
-            "max_minutes": 30,
-            "description": "Fehlende Unterlagen anfordern (Tab. 22)"
+            "max_minutes": 25,
+            "description": "Fehlende Daten/Informationen einholen (LaTeX Tab. 4)"
         },
         "Receive Missing Documents": {
             "resource": "System",
-            "distribution": "exponential",
-            "mean_minutes": 10080,
+            "distribution": "normal",
+            "mean_minutes": 20160,
+            "std_minutes": 5760,
             "min_minutes": 1440,
-            "max_minutes": 20160,
-            "description": "Wartezeit auf fehlende Dokumente (1-14 Tage)"
+            "max_minutes": 43200,
+            "description": "Wartezeit auf fehlende Dokumente (Normal-verteilt, μ=14d, σ=4d, 1-30 Tage)"
         },
-        "Review Document": {
+        "Review Documents": {
             "resource": "Clerk",
             "distribution": "normal",
-            "mean_minutes": 25,
-            "std_minutes": 7,
-            "min_minutes": 10,
-            "max_minutes": 60,
-            "description": "30% von 83 min Gesamtzeit (Tab. 22)"
+            "mean_minutes": 5,
+            "std_minutes": 2,
+            "min_minutes": 2,
+            "max_minutes": 15,
+            "description": "Zeit pro Dokument"
         },
         "Assess Application": {
             "resource": "Clerk",
             "distribution": "normal",
-            "mean_minutes": 25,
-            "std_minutes": 7,
-            "min_minutes": 10,
-            "max_minutes": 50,
-            "description": "Prüfung, Besprechungen, Klärungen"
+            "mean_minutes": 15,
+            "std_minutes": 4,
+            "min_minutes": 5,
+            "max_minutes": 30,
+            "description": "Hälfte der Berechnungen/Bewertungen (LaTeX Tab. 4)"
         },
         "Calculate Claim": {
             "resource": "Clerk",
             "distribution": "normal",
-            "mean_minutes": 21,
-            "std_minutes": 6,
+            "mean_minutes": 20,
+            "std_minutes": 5,
             "min_minutes": 10,
-            "max_minutes": 45,
-            "description": "25% von 83 min (Tab. 22)"
+            "max_minutes": 40,
+            "description": "Hälfte Berechnungen + Ergebnisse prüfen (LaTeX Tab. 4)"
         },
         "Send Notification": {
             "resource": "Clerk",
             "distribution": "normal",
-            "mean_minutes": 12,
+            "mean_minutes": 10,
             "std_minutes": 3,
             "min_minutes": 5,
-            "max_minutes": 25,
-            "description": "Bescheid erstellen und versenden"
+            "max_minutes": 20,
+            "description": "Aufbereiten, Versenden (LaTeX Tab. 4)"
         },
         "Send Rejection": {
             "resource": "Clerk",
             "distribution": "normal",
-            "mean_minutes": 12,
+            "mean_minutes": 10,
             "std_minutes": 3,
             "min_minutes": 5,
-            "max_minutes": 25,
-            "description": "Analog Notification"
+            "max_minutes": 20,
+            "description": "Analog Notification (LaTeX Tab. 4)"
+        },
+        "Print Documents": {
+            "resource": "Clerk",
+            "distribution": "uniform",
+            "min_minutes": 2,
+            "max_minutes": 5,
+            "description": "Batch printing of documents"
+        },
+        "Archive Documents": {
+            "resource": "Clerk",
+            "distribution": "uniform",
+            "min_minutes": 2,
+            "max_minutes": 5,
+            "description": "Batch archiving of documents"
         }
     },
     "resources": {
@@ -192,7 +215,7 @@
             "description": "Automatische Systemtasks"
         },
         "Clerk": {
-            "capacity": 14,
+            "capacity": 32,
             "availability": {
                 "days": [
                     "Mon",
@@ -205,48 +228,67 @@
                 "end_hour": 16.0
             },
             "cost_per_hour_eur": 35,
-            "description": "Sachbearbeiter (14 FTE nach Berechnung)"
+            "description": "Sachbearbeiter Inlandsförderung (32 FTE, LaTeX Section 5.2)"
         }
     },
     "deviations": {
-        "review_skip": {
-            "probability": 0.10,
-            "description": "10% der Fälle überspringen Review Document"
+        "activity_switch": {
+            "probability": 0.01,
+            "activities": [
+                "Assess Application",
+                "Calculate Claim"
+            ],
+            "description": "10% Switched: Calculate vor Assess (Sequence Violation, LaTeX Section 6.1)"
+        },
+        "blind_approval": {
+            "probability": 0.02,
+            "description": "3% Blind Approval: Genehmigung ohne Prüfung (Compliance Violation)"
         },
         "direct_rejection": {
-            "probability": 0.05,
-            "description": "5% direkte Ablehnung nach Review (Shortened Path)"
+            "probability": 0.03,
+            "description": "5% Shortened Path: Direkte Ablehnung nach Review (LaTeX Section 6.2)"
+        },
+        "document_timeout": {
+            "probability": 0.04,
+            "timeout_days": 30,
+            "description": "4% Timeout: Ablehnung nach >30 Tagen ohne Dokumente (LaTeX Section 6.3)"
+        },
+        "document_invalid": {
+            "probability": 0.10,
+            "description": "10% Wahrscheinlichkeit, dass ein Dokument beim Review als ungültig/fehlerhaft abgelehnt wird."
         }
     },
     "document_types": {
         "Formblatt 1": {
             "always_generated": true,
+            "system_mandatory": true,
             "complexity_factor": 1.0,
-            "category": "Antrag",
+            "category": "Student",
             "description": "Basis-Dokument, immer vorhanden"
         },
         "Immatrikulationsbescheinigung": {
             "always_generated": true,
             "complexity_factor": 0.5,
-            "category": "Identität",
+            "category": "Student",
             "description": "Kurzprüfung"
         },
         "Formblatt 3": {
             "condition": "is_parent_dependent",
+            "system_mandatory": true,
             "complexity_factor": 1.5,
-            "category": "Einkommen",
+            "category": "Eltern",
             "description": "Elterneinkommen, nur bei elternabhängiger Förderung"
         },
         "Einkommensnachweis Eltern": {
             "condition": "has_formblatt_3",
             "complexity_factor": 1.3,
-            "category": "Einkommen",
+            "category": "Eltern",
             "description": "Meist 2 Stück (Mutter/Vater)"
         },
         "Mietbescheinigung": {
             "condition": "not_living_with_parents",
             "complexity_factor": 0.8,
-            "category": "Wohnen",
+            "category": "Student",
             "description": "Nur wenn nicht bei Eltern wohnend"
         }
     },

@@ -4,7 +4,6 @@
 CREATE TABLE "Application" (
     "application_id" TEXT PRIMARY KEY,
     "student_id" TEXT,             -- Nur noch als Info-Feld (kein Foreign Key mehr)
-    "student_id" TEXT,             -- Nur noch als Info-Feld (kein Foreign Key mehr)
     "is_initial_application" BOOLEAN, 
     "is_parent_independent" BOOLEAN, -- Neu: Steuert Gateway 'Parent Data Required?' (Report: ~18% unabhängig)
     "housing_type" TEXT,           -- 'Eltern' vs 'Alleine'
