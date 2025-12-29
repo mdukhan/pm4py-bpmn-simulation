@@ -52,6 +52,41 @@ The outputs are **clean, realistic, and analysis-ready event logs**, available i
 
 ---
 
+## Inputs (BPMN + Config Files)
+
+The simulations in this repository are driven by:
+
+- **BPMN input models** (`.bpmn`) under:
+  - `data/bpmn_models/`
+
+- **Simulation configuration files** (`.json`) under:
+  - `data/bpmn_models/simulation_config/`
+
+The notebooks usually load these paths via `config.py` (see `get_asset(...)` and `BPMN_ASSETS`).
+
+### BPMN models
+
+Examples registered in `config.py`:
+
+- `data/bpmn_models/bafoeg_process.bpmn`
+- `data/bpmn_models/bafoeg_ocel.bpmn`
+- `data/bpmn_models/group_10_Extended_Alina.bpmn`
+- `data/bpmn_models/group_10_Simplified_David.bpmn`
+
+### Config files
+
+Examples used by the notebooks:
+
+- **Prosimos config** (used by `notebooks/run_bafoeg_simulation.ipynb` via `get_asset(...).prosimos_config_path`):
+  - `data/bpmn_models/simulation_config/bafoeg_prosimos_config.json`
+
+- **OCEL/SimPy simulation config** (used by `notebooks/sim_ocel.ipynb` via `OCEL_SIMULATION_DIR`):
+  - `data/bpmn_models/simulation_config/sim_ocel_config.json`
+
+If you add a new BPMN variant or config file, register it in `config.py` so all notebooks can reference it consistently.
+
+---
+
 ## Installation
 
 Core dependencies (needed for most notebooks):
