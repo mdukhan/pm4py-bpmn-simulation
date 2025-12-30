@@ -1,10 +1,10 @@
 {
     "simulation": {
         "num_cases": 9800,
-        "start_date": "2024-09-01T00:00:00",
+        "start_date": "2024-09-15T00:00:00",
         "random_seed": 42,
-        "target_log_days": 150,
-        "tail_buffer_days": 5,
+        "target_log_days": 80,
+        "tail_buffer_days": 30,
         "max_review_rounds": 10,
         "include_start_event": true,
         "include_end_event": true,
@@ -121,7 +121,7 @@
             "description": "Automatischer API-Abruf Elterndaten"
         },
         "Receive Parent Data": {
-            "resource": "System",
+            "resource": "External Actor",
             "distribution": "normal",
             "mean_minutes": 10080,
             "std_minutes": 3600,
@@ -139,13 +139,13 @@
             "description": "Fehlende Daten/Informationen einholen (LaTeX Tab. 4)"
         },
         "Receive Missing Documents": {
-            "resource": "System",
+            "resource": "External Actor",
             "distribution": "normal",
-            "mean_minutes": 20160,
-            "std_minutes": 5760,
+            "mean_minutes": 10080,
+            "std_minutes": 2880,
             "min_minutes": 1440,
             "max_minutes": 43200,
-            "description": "Wartezeit auf fehlende Dokumente (Normal-verteilt, μ=14d, σ=4d, 1-30 Tage)"
+            "description": "Wartezeit auf fehlende Dokumente (Normal-verteilt, μ=7d, σ=2d, 1-30 Tage)"
         },
         "Review Documents": {
             "resource": "Clerk",
@@ -215,7 +215,7 @@
             "description": "Automatische Systemtasks"
         },
         "Clerk": {
-            "capacity": 32,
+            "capacity": 10,
             "availability": {
                 "days": [
                     "Mon",
@@ -254,7 +254,7 @@
             "description": "4% Timeout: Ablehnung nach >30 Tagen ohne Dokumente (LaTeX Section 6.3)"
         },
         "document_invalid": {
-            "probability": 0.10,
+            "probability": 0.20,
             "description": "10% Wahrscheinlichkeit, dass ein Dokument beim Review als ungültig/fehlerhaft abgelehnt wird."
         }
     },

@@ -51,7 +51,7 @@ Das aktuelle BPMN \autoref{fig:bafoeg_ocel} ist stärker datengetrieben als die 
 
 \subsection{Szenario-Setup \& Output}
 \begin{itemize}
-    \item \textbf{Zeitraum:} Die Simulation startet am \textbf{01.09.2024} und läuft über einen Zeitraum von \textbf{150 Tagen}, um das gesamte Wintersemester inklusive Nachlaufzeit abzubilden.
+    \item \textbf{Zeitraum:} Die Simulation startet am \textbf{15.09.2024} und läuft über einen Zeitraum von \textbf{80 Tagen}, um das gesamte Wintersemester inklusive Nachlaufzeit abzubilden.
     \item \textbf{Reproduzierbarkeit:} Um konsistente Ergebnisse zu gewährleisten, wird ein fester \textbf{Random Seed (42)} verwendet.
     \item \textbf{Output:} Die Simulation generiert relationale \textbf{CSV-Tabellen} (Events, Applications, Documents, Object-Links), die in ihrer Struktur einem Object-Centric Event Log (OCEL) entsprechen. Dies ermöglicht eine direkte Analyse in Process-Mining-Tools, die objekt-zentrierte Daten unterstützen.
 \end{itemize}
@@ -77,7 +77,7 @@ Ganztags & Sa--So & Exponential & Mittel 10,8 min & Wochenende, reduzierte Rate 
 Gemäß Statistik Bayern 2022~\cite{statbay2022} sind etwa 18\% der Geförderten elternunabhängig (13.637 von 74.771). Daraus leiten wir ab, dass in 80\% der Fälle Elternunterlagen benötigt werden, während 20\% elternunabhängig gefördert werden. Dies steuert das Attribut \texttt{Application.is\_parent\_independent} (FALSE = Elternunterlagen nötig).
 
 \subsection{Documents Missing?} 
-Nach Fachliteratur sind nur 1--2\% der Papier-Erstanträge vollständig~\cite{einfacher2010}, während bei Weiterförderungen etwa 35\% komplett eingereicht werden~\cite{sh2024}. Da der Fokus ausschließlich auf Erstanträgen liegt, ist das Risiko unvollständiger Unterlagen höher (ca. 98\% bei Papier). Durch die Nutzung des digitalen Assistenten BAföG Digital wird eine Verbesserung angenommen, weshalb wir das Risiko ``Documents Missing'' auf 70\% und ``Complete'' auf 30\% setzen. Dieses Gateway wird durch das Attribut \texttt{Document.status} (``Missing'' vs. ``Received'') gesteuert.
+Nach Fachliteratur sind nur 1--2\% der Papier-Erstanträge vollständig~\cite{einfacher2010}, während bei Weiterförderungen etwa 35\% komplett eingereicht werden~\cite{sh2024}. Da der Fokus ausschließlich auf Erstanträgen liegt, ist das Risiko unvollständiger Unterlagen höher (ca. 98\% bei Papier). Durch die Nutzung des digitalen Assistenten BAföG Digital wird eine Verbesserung angenommen, weshalb wir das Risiko ``Documents Missing'' auf 40\% und ``Complete'' auf 60\% setzen. Dieses Gateway wird durch das Attribut \texttt{Document.status} (``Missing'' vs. ``Received'') gesteuert.
 
 \subsection{Eligibility Decision?}
 Nach~\cite{bewilligung2012} liegt der Anteil nicht bewilligter Anträge bei 16\%. Die Pfadwahrscheinlichkeiten betragen somit 84\% für bewilligt und 16\% für abgelehnt. Dieses Gateway wird durch das Attribut \texttt{Application.status} (``Approved'' vs. ``Rejected'') gesteuert.
@@ -110,12 +110,12 @@ Aktivität & Ressource & Verteilung & Parameter & Begründung \\
 \endhead
 Application started & System & - & 0 min & Start-Event (Dateneingang) \\
 Request Parent Data & System & Uniform & 0{,}5--2 min & Automatische Mail an Eltern \\
-Receive Parent Data & System & Normal & $\mu=10080$, $\sigma=3600$ & Wartezeit (Annahme: Normalverteilung) \\
+Receive Parent Data & External Actor & Normal & $\mu=10080$, $\sigma=3600$ & Wartezeit (Annahme: Normalverteilung) \\
 Send Application Mail & System & Uniform & 1--3 min & Automatisches Generieren + Versand \\
 Receive Application & Clerk & Normal & $\mu=13$, $\sigma=4$ & Anlegen der Papierakte \\
 Review Documents & Clerk & Normal & $\mu=5$, $\sigma=2$ & Zeit pro Dokument (Annahme sim\_config) \\
 Request Missing Documents & Clerk & Normal & $\mu=12$, $\sigma=3$ & Fehlende Daten einholen \\
-Receive Missing Documents & System & Normal & $\mu=20160$, $\sigma=5760$ & Wartezeit (Annahme: Normalverteilung) \\
+Receive Missing Documents & External Actor & Normal & $\mu=10080$, $\sigma=2880$ & Wartezeit (Annahme: Normalverteilung) \\
 Print Documents & Clerk & Uniform & 2--5 min & Medienbruch: Batch printing (Annahme: Deviation) \\
 Assess Application & Clerk & Normal & $\mu=15$, $\sigma=4$ & Bewertung \\
 Calculate Claim & Clerk & Normal & $\mu=20$, $\sigma=5$ & Berechnung \\
@@ -241,7 +241,7 @@ Dies demonstriert den Core-Benefit von Object-Centric Process Mining: Die Analys
 
 \subsection{Clerk (Sachbearbeitung)}
 \begin{itemize}
-  \item Anzahl: Inlandsförderung mit 32 Sachbearbeitern \cite{bewilligung2012} (SimPy Resource Capacity).
+  \item Anzahl: Inlandsförderung mit 10 Sachbearbeitern \cite{bewilligung2012} (SimPy Resource Capacity).
   \item Verfügbarkeit: Mo--Fr 07:30--16:00.
   \item \textbf{Queuing:} Aufgaben, die außerhalb der Dienstzeiten eintreffen (z.\,B. durch Online-Antragstellung am Abend), werden in einer Warteschlange (Backlog) gesammelt und erst mit Beginn der nächsten Schicht (07:30 Uhr) bearbeitet. Dies erklärt Wartezeiten trotz rechnerisch ausreichender Kapazität.
 \end{itemize}
@@ -260,6 +260,10 @@ Um einen Conformance Check zu demonstrieren, werden gezielt Abweichungen in den 
 \subsection{Blind Approval (Compliance Violation)}
 \textbf{Szenario:} Bei \textbf{2\,\%} wird der Antrag ohne Prüfung (\glqq Assess\grqq{}) direkt genehmigt (Simulation Parameter \texttt{blind\_approval}). \\\\
 \textbf{Bedeutung:} Ein schwerwiegender Compliance-Verstoß (Genehmigung ohne Prüfung).
+
+\subsection{document\_invalid (Rework)}
+\textbf{Szenario:} Bei \textbf{20\,\%} der Fälle wird ein Dokument im Review als ungültig oder fehlerhaft abgelehnt (Simulation Parameter \texttt{document\_invalid}). \\\\
+\textbf{Bedeutung:} Dies führt zu einer weiteren Review-Runde und erhöht die Durchlaufzeit massiv.
 
 \subsection{Ablehnung wegen Fristablauf (Timeout)}
 \textbf{Szenario:} Bei \textbf{4\,\%} springt der Prozess nach einer Wartezeit von >30 Tagen direkt zur Ablehnung. \\\\
