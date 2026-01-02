@@ -52,7 +52,7 @@ Das aktuelle BPMN \autoref{fig:bafoeg_ocel} ist stärker datengetrieben als die 
 \subsection{Szenario-Setup \& Output}
 \begin{itemize}
     \item \textbf{Zeitraum:} Die Simulation startet am \textbf{15.09.2024} und läuft über einen Zeitraum von \textbf{80 Tagen}, um das gesamte Wintersemester inklusive Nachlaufzeit abzubilden.
-    \item \textbf{Reproduzierbarkeit:} Um konsistente Ergebnisse zu gewährleisten, wird ein fester \textbf{Random Seed (42)} verwendet.
+    \item \textbf{Reproduzierbarkeit:} Um reproduzierbare Ergebnisse zu gewährleisten, wird ein fester \textbf{Random Seed (42)} verwendet.
     \item \textbf{Output:} Die Simulation generiert relationale \textbf{CSV-Tabellen} (Events, Applications, Documents, Object-Links), die in ihrer Struktur einem Object-Centric Event Log (OCEL) entsprechen. Dies ermöglicht eine direkte Analyse in Process-Mining-Tools, die objekt-zentrierte Daten unterstützen.
 \end{itemize}
 
@@ -175,12 +175,16 @@ Das Simulationsmodell basiert auf einem objekt-zentrierten Ansatz (Object-Centri
 \end{itemize}
 
 \subsection{Dokumenten-Generierung und Lebenszyklus}
-Zum Zeitpunkt des \glqq Application started\grqq{} werden technisch bereits alle potenziellen Dokumente (z.\,B. Formblatt 1, Immatrikulationsbescheinigung) instanziiert.
+Vor der Aktivität \glqq Application started\grqq{} werden technisch bereits alle potenziellen Dokumente (z.\,B. Formblatt 1, Immatrikulationsbescheinigung) instanziiert. Auf Application started werden alle Dokumente, die in der Config mit \texttt{system_mandatory} markiert sind, auf \texttt{Received} gesetzt. Außerdem wird auf Basis der Gateway-Wahrscheinlichkeiten der Typ der benötigten Dokumente bestimmt und darüberhinaus ein mit einer Wahrscheinlichkeit von \texttt{40\%} als \texttt{Missing} markiert.
+\\
 \begin{itemize}
     \item \textbf{Initialer Status:} Alle Dokumente starten im Status \texttt{Missing}.
-    \item \textbf{Status-Wechsel:} Der Status ändert sich erst auf \texttt{Received}, wenn die entsprechende Aktivität (z.\,B. \glqq Receive Application\grqq{} oder \glqq Receive Parent Data\grqq{}) tatsächlich ausgeführt wird.
+    \item \textbf{Status-Wechsel:} Der Status ändert sich erst auf \texttt{Received}, wenn die entsprechende Aktivität (z.\,B. \glqq Application started\grqq{}, \glqq Receive Application\grqq{}, \glqq Receive Parent Data\grqq{}, \glqq Review Documents\grqq{}) tatsächlich ausgeführt wird.
 \end{itemize}
+
 Dies ermöglicht die getrennte Nachverfolgung jedes einzelnen Belegs (Unvollständigkeit) parallel zum Hauptantrag.
+
+Darüberhinaus gibt es in Review Documents eine Parameter \texttt{p_invalid} mit einer Wahrscheinlichkeit von \texttt{10\%}, dass ein Dokument als \texttt{Missing} markiert wird, um unvollständige Dokumente zu simulieren. Sobald diese erfolgreich reviewed sind, werden diese Dokumente keiner Prüfung mehr unterzogen.
 
 \subsection{Object-to-Event Mapping}
 Um den Lebenszyklus des Antrags und der einzelnen Dokumente getrennt voneinander, aber synchronisiert abzubilden, wird folgendes Mapping-Schema angewendet:
@@ -241,7 +245,7 @@ Dies demonstriert den Core-Benefit von Object-Centric Process Mining: Die Analys
 
 \subsection{Clerk (Sachbearbeitung)}
 \begin{itemize}
-  \item Anzahl: Inlandsförderung mit 10 Sachbearbeitern \cite{bewilligung2012} (SimPy Resource Capacity).
+  \item Anzahl: Inlandsförderung mit 10 Sachbearbeitern, in Realität 32\cite{bewilligung2012}, jedoch 10 um Warteschlangen zu simulieren.
   \item Verfügbarkeit: Mo--Fr 07:30--16:00.
   \item \textbf{Queuing:} Aufgaben, die außerhalb der Dienstzeiten eintreffen (z.\,B. durch Online-Antragstellung am Abend), werden in einer Warteschlange (Backlog) gesammelt und erst mit Beginn der nächsten Schicht (07:30 Uhr) bearbeitet. Dies erklärt Wartezeiten trotz rechnerisch ausreichender Kapazität.
 \end{itemize}
@@ -277,6 +281,29 @@ Um einen Conformance Check zu demonstrieren, werden gezielt Abweichungen in den 
 \begin{itemize}
   \item KPIs: Cycle Time je Antrag, Auslastung Sachbearbeiter, Wartezeiten pro Queue, Bewilligungsquote.
   \item Experimente: Sensitivität auf Dokumentvollständigkeit (Gateway), Variation Receive-Document-Mittelwert, Personalkapazität (z.B. 10--16 FTE), saisonale Peaks vs. Normalsemester.
+\end{itemize}
+
+\section{Limitations}
+Die Simulation unterliegt folgenden Einschränkungen:
+
+\begin{itemize}
+    \item \textbf{Fokus auf Erstanträge:} Die Simulation bildet ausschließlich Erstanträge ab. Folgeanträge, Schüler-BAföG und Auslands-BAföG werden nicht berücksichtigt.
+    
+    \item \textbf{Ausschließlich digitale Anträge:} Es werden nur Anträge über BAföG-Digital simuliert. Papieranträge und hybride Einreichungskanäle sind ausgeschlossen.
+    
+    \item \textbf{Aggregierte Elternunterlagen:} Elternunterlagen (Einkommen Mutter/Vater) werden nicht individuell unterschieden, sondern als aggregiertes Nachweisobjekt behandelt.
+    
+    \item \textbf{Vereinfachte Dokumentenlogik:} Die Wahrscheinlichkeit, dass ein Dokument initial fehlt, ist fest auf 40\,\% gesetzt. In der Realität variiert dies je nach Dokumenttyp und Antragstellerprofil.
+    
+    \item \textbf{Keine Ressourcenausfälle:} Krankheitsausfälle, Urlaub oder Schulungen der Sachbearbeiter werden nicht modelliert. Die Kapazität bleibt konstant bei 10 FTE.
+    
+    \item \textbf{Feste Review-Runden:} Die maximale Anzahl der Review-Runden ist auf 10 begrenzt (\texttt{max\_review\_rounds}). Endlose Nachforderungsschleifen werden verhindert.
+    
+    \item \textbf{Keine saisonalen Variationen innerhalb des Semesters:} Die Interarrival-Raten sind über den gesamten Simulationszeitraum exponential verteilt und bilden keine intra-saisonalen Schwankungen (z.\,B. Prüfungsphasen) ab.
+    
+    \item \textbf{Keine Bewerbungszeitfenster 00:00--08:00 Uhr wochentags:} In der aktuellen Konfiguration fehlt ein explizites Interarrival-Zeitfenster für die Nacht (00:00--08:00 Uhr) an Werktagen; diese Zeiträume werden mit einem Default-Wert behandelt.
+    
+    \item \textbf{Statische Ablehnungsquote:} Die Bewilligungsquote von 84\,\% ist konstant und berücksichtigt keine Variation nach Antragstellerprofil oder Dokumentqualität.
 \end{itemize}
 
 \newpage
